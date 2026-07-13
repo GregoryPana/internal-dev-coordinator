@@ -1,0 +1,31 @@
+# environment / secrets
+.env
+*.pem
+*.key
+
+# python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+*.egg-info/
+
+# node / frontend
+node_modules/
+frontend/dist/
+
+# tooling / editors
+.vscode/
+.idea/
+*.swp
+
+# OS
+Thumbs.db
+.DS_Store
+
+# app artifacts
+exports/
+*.zip
