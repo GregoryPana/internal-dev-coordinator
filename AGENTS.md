@@ -8,6 +8,7 @@ Canonical operating rules for all AI coding agents (Claude Code, OpenCode, Codex
 2. `docs/MVP_TASK_PLAN.md` — the current task and its acceptance criteria.
 3. `docs/DATA_MODEL.md` — entities and controlled vocabularies. Never invent enum values.
 4. `docs/VERIFICATION_MATRIX.md` — what to verify before calling a task done.
+5. Before substantial frontend/UI work: `docs/AGENT_DESIGN_SKILLS.md` and `DESIGN.md` — the project design-system and UI quality gate.
 
 ## Hard rules
 
@@ -25,6 +26,7 @@ Canonical operating rules for all AI coding agents (Claude Code, OpenCode, Codex
 
 - Backend: FastAPI + SQLAlchemy 2.x + Alembic; Python 3.12; type hints throughout; `pytest` for tests.
 - Frontend: React + TypeScript + Vite; keep it plain — no state-management libraries until needed.
+- UI/design: follow `DESIGN.md` and `docs/AGENT_DESIGN_SKILLS.md`. Default direction is clean/professional CWS internal SaaS control plane: evidence-led, light-first, status/freshness/review states visible, restrained motion. Use shadcn-style component discipline if/when Tailwind/shadcn is introduced.
 - Migrations: one migration per task; descriptive slugs; reference data seeded via migration.
 - Commits: conventional prefixes (`feat:`, `fix:`, `docs:`, `chore:`); small, task-scoped commits; never commit `.env`.
 - Every completed task updates `docs/VERIFICATION_MATRIX.md` with what was verified and how.
@@ -35,3 +37,4 @@ Canonical operating rules for all AI coding agents (Claude Code, OpenCode, Codex
 - `pytest` passes.
 - The affected flow is exercised end-to-end (API call or UI), not just unit-tested.
 - No secret-like strings in code, fixtures or generated output.
+- UI work also requires `cd frontend && npm run build`, browser inspection of changed routes, console check, responsive review, and a short scorecard against `DESIGN.md`.

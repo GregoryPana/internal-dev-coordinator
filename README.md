@@ -52,6 +52,8 @@ Dev auth is a **login stub only** — the role/permission model is real from day
 | `docs/DATA_MODEL.md` | Entities, controlled vocabularies, required-doc profiles |
 | `docs/VERIFICATION_MATRIX.md` | What must be verified per task/phase |
 | `docs/MVP_TASK_PLAN.md` | The 10-task build sequence with gates |
+| `DESIGN.md` | Project-level UI/design system for the internal SaaS control plane |
+| `docs/AGENT_DESIGN_SKILLS.md` | Design skill routing and UI guidance for OpenCode/Claude |
 | `AGENTS.md` | Operating rules for AI coding agents (canonical) |
 | `EXIT.md` | Handover/exit state of this project |
 
