@@ -16,6 +16,7 @@ dist/
 # node / frontend
 node_modules/
 frontend/dist/
+*.tsbuildinfo
 
 # tooling / editors
 .vscode/

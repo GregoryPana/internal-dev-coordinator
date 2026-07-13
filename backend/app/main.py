@@ -8,6 +8,7 @@ docs/MVP_TASK_PLAN.md).
 from fastapi import FastAPI
 
 from app.config import settings
+from app.registry.router import router as registry_router
 
 app = FastAPI(
     title="CWS Internal Development Coordinator",
@@ -16,6 +17,8 @@ app = FastAPI(
     openapi_url="/api/openapi.json",
 )
 
+app.include_router(registry_router)
+
 
 @app.get("/api/health")
 def health() -> dict:
@@ -23,7 +26,6 @@ def health() -> dict:
 
 
 # Routers land per task:
-# T3: app.registry.router
 # T4: app.status.router
 # T5: app.docs_matrix.router
 # T7/T8: app.starterpack.router
