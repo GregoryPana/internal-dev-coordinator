@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { DocumentationMatrix } from "../components/DocumentationMatrix";
 import { FreshnessBadge } from "../components/FreshnessBadge";
 import { PageHeader } from "../components/PageHeader";
+import { RepoSignalsCard } from "../components/RepoSignalsCard";
 import { StatusChip } from "../components/StatusChip";
 import { ApiError, getProject, listStatusEvents } from "../lib/api";
 import type { Project, StatusEvent } from "../lib/types";
@@ -216,6 +217,8 @@ export function ProjectProfile() {
               <EvidenceLink label="Documentation" href={project.docs_url} />
             </div>
           </div>
+
+          <RepoSignalsCard projectId={project.id} userEmail={email} />
 
           <div className="rounded-lg border border-border bg-surface p-5">
             <h2 className="mb-1 text-sm font-semibold text-text">Record</h2>

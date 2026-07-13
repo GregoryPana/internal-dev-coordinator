@@ -22,6 +22,9 @@ def _disabled_ai_provider_by_default(monkeypatch):
     test_ai_provider.py)."""
     monkeypatch.setattr(settings, "ai_provider", "disabled")
     monkeypatch.setattr(settings, "ai_api_key", "")
+    # Same isolation for the Phase 4 GitHub read integration.
+    monkeypatch.setattr(settings, "github_provider", "disabled")
+    monkeypatch.setattr(settings, "github_token", "")
 
 
 @pytest.fixture()

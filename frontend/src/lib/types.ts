@@ -174,6 +174,23 @@ export interface AIInteraction {
   created_at: string;
 }
 
+export interface RepoLastCommit {
+  sha: string;
+  message: string;
+  author: string | null;
+  committed_at: string | null;
+}
+
+export interface RepoSignals {
+  repo_full_name: string;
+  default_branch: string;
+  pushed_at: string | null;
+  last_commit: RepoLastCommit | null;
+  open_pr_count: number;
+  open_issue_count: number;
+  fetched_at: string;
+}
+
 export interface AuditEvent {
   id: number;
   actor_id: number | null;

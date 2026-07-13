@@ -12,6 +12,7 @@ from app.audit.router import router as audit_router
 from app.config import settings
 from app.docs_matrix.router import router as docs_matrix_router
 from app.registry.router import router as registry_router
+from app.repo.router import router as repo_router
 from app.starterpack.router import router as starterpack_router
 from app.status.router import router as status_router
 
@@ -28,6 +29,7 @@ app.include_router(docs_matrix_router)
 app.include_router(starterpack_router)
 app.include_router(ai_router)
 app.include_router(audit_router)
+app.include_router(repo_router)
 
 
 @app.get("/api/health")

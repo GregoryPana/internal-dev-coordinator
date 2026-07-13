@@ -7,6 +7,7 @@ import type {
   IntakeFormValues,
   Project,
   ProjectFormValues,
+  RepoSignals,
   StarterPack,
   StarterPackPreview,
   StatusEvent,
@@ -155,6 +156,24 @@ export function listSummaries(userEmail: string, projectId: number): Promise<AII
 
 export function listAIInteractions(userEmail: string, projectId: number): Promise<AIInteraction[]> {
   return request(`/api/projects/${projectId}/ai/interactions`, userEmail);
+}
+
+/** Repo signals states: data, "none" (no GitHub repo URL - 204), "disabled"
+ * (integration off - 501). Fetch failures (502 etc.) throw ApiError. */
+export async function getRepoSignals(
+  userEmail: string,
+  projectId: number
+): Promise<RepoSignals | "none" | "disabled"> {
+  const resp = await fetch(`/api/projects/${projectId}/repo-signals`, {
+    headers: { "X-User-Email": userEmail },
+  });
+  if (resp.status === 204) return "none";
+  if (resp.status === 501) return "disabled";
+  if (!resp.ok) {
+    const body = await resp.json().catch(() => ({}));
+    throw new ApiError(resp.status, body.detail || `Request failed (${resp.status})`);
+  }
+  return resp.json() as Promise<RepoSignals>;
 }
 
 export interface AuditQuery {

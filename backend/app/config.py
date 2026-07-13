@@ -29,5 +29,13 @@ class Settings(BaseSettings):
     # Never logged, never stored in the DB - read from the environment only.
     ai_api_key: str = ""
 
+    # GitHub READ integration (Phase 4). Strictly read-only: the app never
+    # writes to any repository. Same disabled-by-default pattern as ai_provider.
+    github_provider: str = "disabled"  # disabled | github
+    github_api_base: str = "https://api.github.com"
+    # Fine-grained PAT with read-only contents/metadata scope. Never logged,
+    # never stored in the DB - read from the environment only.
+    github_token: str = ""
+
 
 settings = Settings()
