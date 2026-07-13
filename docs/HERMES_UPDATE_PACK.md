@@ -18,6 +18,54 @@ Newest entries first. Each entry: task, date, agent, then notes.
 
 ---
 
+## T8 - AI tailoring + review workflow + zip export (2026-07-13, Claude Sonnet 5)
+
+- **Open item resolved by design, not by picking a provider:** the MVP
+  Implementation Plan's open items list "Production AI provider route
+  approval" as still pending, and no provider/key/budget has been
+  approved. Rather than block T8 on that decision or silently pick a
+  provider, the adapter is built so `IDC_AI_PROVIDER=disabled` (the
+  existing default) is a fully first-class path: starter-pack
+  generate/review/export works completely today, with no AI, and no
+  `AIInteraction` row is fabricated for a run that never happened
+  (`app.ai.provider.get_provider()` raises `NotImplementedError` for any
+  other provider name, which the router turns into a clean 501 rather
+  than a crash). Wiring a real provider later is adding one file
+  (`app/ai/provider.py`'s `get_provider()`), not a redesign - the whole
+  generate→tailor→persist→review→export pipeline is provider-agnostic
+  and already tested against a fake provider.
+- **Scope decision on what "AI tailoring" means for T8:** rather than
+  have a model rewrite all 11 generated files (a much bigger, harder-to-
+  validate undertaking), tailoring is scoped to one grounded paragraph -
+  the README's project overview - built from a prompt that explicitly
+  forbids inventing users/integrations/capabilities not already in the
+  structured intake. Keeps the blast radius of a bad/hallucinated
+  response to one paragraph, and keeps output validation simple (non-
+  empty, forbidden-data-clean) instead of needing a multi-file parsing/
+  schema-validation layer for MVP.
+- **Forbidden-data scanning runs before the provider is ever called**,
+  not just on the response - `app.ai.forbidden_data.scan_many()` checks
+  the intake text first; if it finds something secret-shaped, the AI
+  call is skipped entirely (verified in `test_ai_tailoring_forbidden_data
+  _in_intake_skips_call`, which asserts the fake provider's call count
+  is exactly 0) and an `AIInteraction` row records the refusal
+  (`failed_forbidden_data` / `rejected`) so there's a durable audit trail
+  of the safety control actually firing, not just silence.
+- **Same enum-type-reuse migration bug as T5, same fix:** `starter_packs.
+  status` and `ai_interactions.human_review_status` share one Postgres
+  enum type created fresh in this migration; the second reference needed
+  `create_type=False` and the `downgrade()` needed to explicitly drop
+  all 5 new enum types. This is now the third time this exact class of
+  bug has been hit and fixed - worth turning into a standing pre-flight
+  check ("does this migration create 2+ columns referencing the same new
+  or existing Postgres enum type?") before running a fresh migration on
+  future enum-touching tasks (T9's `AIInteraction` reuse of these same
+  types didn't hit it again, since T8 already created them).
+- **e2e was run against a real pilot project** (CWSCX Platform, imported
+  in T6) end to end through the actual browser download API, not a
+  mocked fetch - the exported zip was opened afterward and its 11
+  filenames checked directly.
+
 ## T7 - Deterministic starter-pack templates + intake form (2026-07-13, Claude Sonnet 5)
 
 - **Scope discipline decision:** T7 does not create a `StarterPack` DB row
@@ -215,3 +263,15 @@ Newest entries first. Each entry: task, date, agent, then notes.
   pilots (T6 imported both instead of picking one per
   `docs/PROJECT_SCOPE.md`'s "Pulse Awards or CWSCX" wording) - no action
   needed if four pilots is fine, otherwise delete one project row.
+- **Production AI provider route approval still outstanding.** T8 built
+  the full generate/review/export pipeline and the provider adapter, but
+  `IDC_AI_PROVIDER=disabled` is the only implemented path - no real model
+  has ever produced output for this app. Once Gregory approves a
+  provider (Anthropic/OpenAI/Azure OpenAI per the architecture spec's
+  recommended route), that's a small, contained addition
+  (`app/ai/provider.py`), not a redesign - but it does need the SDK added
+  as a dependency and a key/budget decision, which is explicitly outside
+  what an agent should decide unilaterally. This also blocks T9 (the
+  Phase 3 AI summary task) from producing real output, though T9's
+  source-bundle builder and validation logic can still be built and
+  tested against a fake provider the same way T8 was.

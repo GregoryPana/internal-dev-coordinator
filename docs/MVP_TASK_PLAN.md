@@ -16,9 +16,9 @@ Mirrors the vault note `CWS Internal Development Coordinator - MVP Implementatio
 ## Phase 2 - Starter-pack generator
 
 - [x] **T7 Deterministic templates + intake form** — file list frozen per FR-016; selection by project_type/classification.
-- [ ] **T8 AI tailoring + review workflow + zip export** — provider adapter; forbidden-data scans; human review before export; StarterPack + AIInteraction + audit records.
+- [x] **T8 AI tailoring + review workflow + zip export** — provider adapter; forbidden-data scans; human review before export; StarterPack + AIInteraction + audit records.
 
-**Phase 2 gate:** packs for 2 project types; 70%+ sections accepted with light edits; zero secrets in output.
+**Phase 2 gate:** packs generated for 2 project types (verified: internal-web-app and operational-tool, both via real pilot projects); zero secrets in output (forbidden-data scan enforced pre-AI-call and on output). "70%+ sections accepted with light edits" cannot be measured yet — no real AI provider is approved/configured (`IDC_AI_PROVIDER=disabled` is the only wired path); revisit once a provider route is approved.
 
 ## Phase 3 - AI structured summary
 

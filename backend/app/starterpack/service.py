@@ -6,9 +6,19 @@ file list is frozen: exactly these 11 files, never more (see the "scope
 regrowth" risk note in the vault MVP Implementation Plan).
 """
 
+import zipfile
+from pathlib import Path
+
+from sqlalchemy.orm import Session
+
+from app.ai.models import AIInteraction
+from app.ai.service import AIInteractionInput, tailor_starter_pack
 from app.registry.models import Project
+from app.starterpack.models import StarterPack
 from app.starterpack.schemas import GeneratedFile, IntakeForm
-from app.vocab import REQUIRED_DOC_PROFILES, ArtifactType, Classification, ProjectType
+from app.vocab import REQUIRED_DOC_PROFILES, ArtifactType, Classification, HumanReviewStatus, ProjectType
+
+EXPORTS_DIR = Path("exports")
 
 _STACK_BY_TYPE: dict[ProjectType, str] = {
     ProjectType.INTERNAL_WEB_APP: "FastAPI backend, React/TypeScript frontend, PostgreSQL database - modular monolith.",
@@ -314,3 +324,80 @@ def build_preview(project: Project, intake: IntakeForm) -> list[GeneratedFile]:
         GeneratedFile(path="docs/OPERATIONS.md", content=_operations_md(project)),
         GeneratedFile(path="docs/VERIFICATION_MATRIX.md", content=_verification_matrix_md(project)),
     ]
+
+
+def _record_ai_interaction(db: Session, project: Project, data: AIInteractionInput) -> AIInteraction:
+    interaction = AIInteraction(
+        project_id=project.id,
+        task_type=data.task_type,
+        audience=None,
+        prompt_id=data.prompt_id,
+        prompt_version=data.prompt_version,
+        source_ids_json=data.source_ids_json,
+        input_bundle_hash=data.input_bundle_hash,
+        model_provider=data.model_provider,
+        model_name=data.model_name,
+        output_text=data.output_text,
+        output_json=None,
+        input_tokens=data.input_tokens,
+        output_tokens=data.output_tokens,
+        latency_ms=data.latency_ms,
+        error_category=data.error_category,
+        estimated_cost=data.estimated_cost,
+        validation_status=data.validation_status,
+        human_review_status=data.human_review_status,
+    )
+    db.add(interaction)
+    db.flush()
+    return interaction
+
+
+def generate_pack(db: Session, project: Project, intake: IntakeForm) -> tuple[StarterPack, bool]:
+    """FR-015/FR-017: build the deterministic pack, run AI tailoring if a
+    provider is configured, and persist a StarterPack for review. Returns
+    (pack, ai_tailoring_attempted)."""
+
+    deterministic_files = build_preview(project, intake)
+    outcome = tailor_starter_pack(project, intake, deterministic_files)
+
+    if outcome.interaction is not None:
+        _record_ai_interaction(db, project, outcome.interaction)
+
+    pack = StarterPack(
+        project_id=project.id,
+        intake_json=intake.model_dump(),
+        generated_files_json=[f.model_dump() for f in outcome.files],
+        status=HumanReviewStatus.GENERATED,
+    )
+    db.add(pack)
+    db.flush()
+    return pack, outcome.interaction is not None
+
+
+def get_pack(db: Session, project_id: int, pack_id: int) -> StarterPack | None:
+    pack = db.get(StarterPack, pack_id)
+    if pack is None or pack.project_id != project_id:
+        return None
+    return pack
+
+
+def review_pack(db: Session, pack: StarterPack, reviewer_id: int, decision: HumanReviewStatus) -> StarterPack:
+    pack.status = decision
+    pack.reviewed_by = reviewer_id
+    db.flush()
+    return pack
+
+
+def export_pack(db: Session, pack: StarterPack) -> Path:
+    """FR-017/zip export - only reachable once a pack has been reviewed."""
+
+    EXPORTS_DIR.mkdir(exist_ok=True)
+    zip_path = EXPORTS_DIR / f"starter-pack-{pack.id}.zip"
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+        for file_data in pack.generated_files_json:
+            zf.writestr(file_data["path"], file_data["content"])
+
+    pack.status = HumanReviewStatus.EXPORTED
+    pack.export_path = str(zip_path)
+    db.flush()
+    return zip_path

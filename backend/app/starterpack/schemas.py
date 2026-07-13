@@ -1,9 +1,14 @@
-"""Pydantic schemas for the starter-pack generator (T7: deterministic
-templates + intake form only - FR-013/FR-014/FR-016. AI tailoring, review
-workflow, persistence (StarterPack table) and zip export land in T8.
+"""Pydantic schemas for the starter-pack generator: deterministic
+templates + intake form (T7, FR-013/FR-014/FR-016) plus AI tailoring,
+persistence, review workflow and zip export (T8).
 """
 
-from pydantic import BaseModel, Field
+from datetime import datetime
+from typing import Literal
+
+from pydantic import BaseModel, ConfigDict, Field
+
+from app.vocab import HumanReviewStatus
 
 
 class IntakeForm(BaseModel):
@@ -29,3 +34,26 @@ class GeneratedFile(BaseModel):
 class StarterPackPreview(BaseModel):
     project_id: int
     files: list[GeneratedFile]
+
+
+class StarterPackReviewerRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+    email: str
+
+
+class StarterPackRead(BaseModel):
+    id: int
+    project_id: int
+    intake: IntakeForm
+    files: list[GeneratedFile]
+    status: HumanReviewStatus
+    reviewer: StarterPackReviewerRead | None
+    export_path: str | None
+    created_at: datetime
+
+
+class ReviewDecision(BaseModel):
+    decision: Literal[HumanReviewStatus.REVIEWED, HumanReviewStatus.REJECTED]

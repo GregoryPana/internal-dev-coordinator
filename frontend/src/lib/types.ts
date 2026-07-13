@@ -2,6 +2,7 @@ import type {
   ArtifactStatus,
   ArtifactType,
   Classification,
+  HumanReviewStatus,
   Priority,
   ProjectPhase,
   ProjectStatus,
@@ -121,6 +122,23 @@ export interface GeneratedFile {
 export interface StarterPackPreview {
   project_id: number;
   files: GeneratedFile[];
+}
+
+export interface StarterPackReviewer {
+  id: number;
+  name: string;
+  email: string;
+}
+
+export interface StarterPack {
+  id: number;
+  project_id: number;
+  intake: IntakeFormValues;
+  files: GeneratedFile[];
+  status: HumanReviewStatus;
+  reviewer: StarterPackReviewer | null;
+  export_path: string | null;
+  created_at: string;
 }
 
 export type ProjectFormValues = Pick<

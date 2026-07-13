@@ -1,8 +1,16 @@
 import { useState, type FormEvent, type ReactNode } from "react";
 import { useParams } from "react-router-dom";
 import { PageHeader } from "../components/PageHeader";
-import { ApiError, generateStarterPackPreview } from "../lib/api";
-import type { GeneratedFile, IntakeFormValues } from "../lib/types";
+import { StatusChip } from "../components/StatusChip";
+import {
+  ApiError,
+  exportStarterPack,
+  generateStarterPack,
+  generateStarterPackPreview,
+  reviewStarterPack,
+} from "../lib/api";
+import type { GeneratedFile, IntakeFormValues, StarterPack } from "../lib/types";
+import { HUMAN_REVIEW_STATUS_LABELS, HUMAN_REVIEW_STATUS_TONE } from "../lib/vocab";
 import { useCurrentUser } from "../state/currentUser";
 
 const EMPTY_INTAKE: IntakeFormValues = {
@@ -44,26 +52,78 @@ export function StarterPackPage() {
   const { email } = useCurrentUser();
   const [intake, setIntake] = useState<IntakeFormValues>(EMPTY_INTAKE);
   const [files, setFiles] = useState<GeneratedFile[] | null>(null);
+  const [pack, setPack] = useState<StarterPack | null>(null);
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [generating, setGenerating] = useState(false);
+  const [busy, setBusy] = useState<"preview" | "generate" | "review" | "export" | null>(null);
 
   function set<K extends keyof IntakeFormValues>(key: K, value: IntakeFormValues[K]) {
     setIntake((f) => ({ ...f, [key]: value }));
   }
 
-  async function onSubmit(e: FormEvent) {
+  async function onPreview(e: FormEvent) {
     e.preventDefault();
     setError(null);
-    setGenerating(true);
+    setBusy("preview");
     try {
       const preview = await generateStarterPackPreview(email, projectId, intake);
+      setPack(null);
       setFiles(preview.files);
       setSelectedPath(preview.files[0]?.path ?? null);
     } catch (e) {
       setError(e instanceof ApiError ? e.message : "Could not generate the starter pack preview.");
     } finally {
-      setGenerating(false);
+      setBusy(null);
+    }
+  }
+
+  async function onGenerate(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setBusy("generate");
+    try {
+      const created = await generateStarterPack(email, projectId, intake);
+      setPack(created);
+      setFiles(created.files);
+      setSelectedPath(created.files[0]?.path ?? null);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "Could not generate the starter pack.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function onReview(decision: "reviewed" | "rejected") {
+    if (!pack) return;
+    setError(null);
+    setBusy("review");
+    try {
+      const updated = await reviewStarterPack(email, projectId, pack.id, decision);
+      setPack(updated);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "Could not record the review decision.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function onExport() {
+    if (!pack) return;
+    setError(null);
+    setBusy("export");
+    try {
+      const blob = await exportStarterPack(email, projectId, pack.id);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "starter-pack.zip";
+      a.click();
+      URL.revokeObjectURL(url);
+      setPack({ ...pack, status: "exported" });
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "Could not export the starter pack.");
+    } finally {
+      setBusy(null);
     }
   }
 
@@ -73,7 +133,7 @@ export function StarterPackPage() {
     <div>
       <PageHeader
         title="Starter pack"
-        subtitle="Deterministic Internal Dev Kit starter files (FR-016), generated from this project's fields and a short intake. Draft output - review before use; AI tailoring and export land in a later phase."
+        subtitle="Internal Dev Kit starter files (FR-016), generated from this project's fields and a short intake, optionally AI-tailored. Draft output - always reviewed before export (FR-017)."
       />
 
       {error && (
@@ -82,10 +142,7 @@ export function StarterPackPage() {
         </div>
       )}
 
-      <form
-        onSubmit={onSubmit}
-        className="mb-6 space-y-4 rounded-lg border border-border bg-surface p-6"
-      >
+      <form onSubmit={onGenerate} className="mb-6 space-y-4 rounded-lg border border-border bg-surface p-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Who will use this" htmlFor="users">
             <input
@@ -152,16 +209,66 @@ export function StarterPackPage() {
           />
         </Field>
 
-        <div className="border-t border-border pt-4">
+        <div className="flex items-center gap-3 border-t border-border pt-4">
+          <button
+            type="button"
+            onClick={onPreview}
+            disabled={busy !== null}
+            className="rounded-md border border-border bg-surface px-4 py-2 text-sm font-medium text-text hover:bg-surface-muted disabled:opacity-60"
+          >
+            {busy === "preview" ? "Generating…" : "Quick preview"}
+          </button>
           <button
             type="submit"
-            disabled={generating}
+            disabled={busy !== null}
             className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-fg hover:bg-primary-hover disabled:opacity-60"
           >
-            {generating ? "Generating…" : "Generate preview"}
+            {busy === "generate" ? "Generating…" : "Generate for review"}
           </button>
         </div>
       </form>
+
+      {pack && (
+        <div className="mb-6 flex flex-wrap items-center gap-3 rounded-lg border border-border bg-surface p-4">
+          <span className="text-sm font-medium text-text">Starter pack #{pack.id}</span>
+          <StatusChip label={HUMAN_REVIEW_STATUS_LABELS[pack.status]} tone={HUMAN_REVIEW_STATUS_TONE[pack.status]} />
+          {pack.reviewer && (
+            <span className="text-sm text-muted-text">Reviewed by {pack.reviewer.name}</span>
+          )}
+          <div className="ml-auto flex gap-2">
+            {pack.status === "generated" && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => onReview("reviewed")}
+                  disabled={busy !== null}
+                  className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-fg hover:bg-primary-hover disabled:opacity-60"
+                >
+                  Approve
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onReview("rejected")}
+                  disabled={busy !== null}
+                  className="rounded-md border border-danger-border bg-surface px-3 py-1.5 text-sm font-medium text-danger hover:bg-danger-bg disabled:opacity-60"
+                >
+                  Reject
+                </button>
+              </>
+            )}
+            {pack.status === "reviewed" && (
+              <button
+                type="button"
+                onClick={onExport}
+                disabled={busy !== null}
+                className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-fg hover:bg-primary-hover disabled:opacity-60"
+              >
+                {busy === "export" ? "Exporting…" : "Export as zip"}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
 
       {files && (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">

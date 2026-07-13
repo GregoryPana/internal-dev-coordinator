@@ -114,3 +114,20 @@ export const ARTIFACT_STATUS_TONE: Record<ArtifactStatus, ChipTone> = {
   approved: "success",
   retired: "neutral",
 };
+
+export const HUMAN_REVIEW_STATUSES = ["generated", "reviewed", "exported", "rejected"] as const;
+export type HumanReviewStatus = (typeof HUMAN_REVIEW_STATUSES)[number];
+
+export const HUMAN_REVIEW_STATUS_LABELS: Record<HumanReviewStatus, string> = {
+  generated: "Awaiting review",
+  reviewed: "Reviewed",
+  exported: "Exported",
+  rejected: "Rejected",
+};
+
+export const HUMAN_REVIEW_STATUS_TONE: Record<HumanReviewStatus, ChipTone> = {
+  generated: "warning",
+  reviewed: "success",
+  exported: "success",
+  rejected: "danger",
+};

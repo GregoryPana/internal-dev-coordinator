@@ -1,10 +1,11 @@
-import type { ArtifactType } from "./vocab";
+import type { ArtifactType, HumanReviewStatus } from "./vocab";
 import type {
   DocArtifactUpsertPayload,
   DocMatrixEntry,
   IntakeFormValues,
   Project,
   ProjectFormValues,
+  StarterPack,
   StarterPackPreview,
   StatusEvent,
   StatusEventPayload,
@@ -95,4 +96,42 @@ export function generateStarterPackPreview(
     method: "POST",
     body: JSON.stringify(intake),
   });
+}
+
+export function generateStarterPack(
+  userEmail: string,
+  projectId: number,
+  intake: IntakeFormValues
+): Promise<StarterPack> {
+  return request(`/api/projects/${projectId}/starter-pack/generate`, userEmail, {
+    method: "POST",
+    body: JSON.stringify(intake),
+  });
+}
+
+export function reviewStarterPack(
+  userEmail: string,
+  projectId: number,
+  packId: number,
+  decision: Extract<HumanReviewStatus, "reviewed" | "rejected">
+): Promise<StarterPack> {
+  return request(`/api/projects/${projectId}/starter-pack/${packId}/review`, userEmail, {
+    method: "POST",
+    body: JSON.stringify({ decision }),
+  });
+}
+
+export async function exportStarterPack(
+  userEmail: string,
+  projectId: number,
+  packId: number
+): Promise<Blob> {
+  const resp = await fetch(`/api/projects/${projectId}/starter-pack/${packId}/export`, {
+    headers: { "X-User-Email": userEmail },
+  });
+  if (!resp.ok) {
+    const body = await resp.json().catch(() => ({}));
+    throw new ApiError(resp.status, body.detail || `Request failed (${resp.status})`);
+  }
+  return resp.blob();
 }
