@@ -24,8 +24,10 @@ class Settings(BaseSettings):
     freshness_threshold_days: int = 14
 
     # AI provider adapter (task T8/T9). Metadata-only inputs; no secrets.
-    ai_provider: str = "disabled"  # disabled | anthropic | openai | azure_openai
+    ai_provider: str = "disabled"  # disabled | openrouter | anthropic | openai | azure_openai
     ai_model: str = ""
+    # Never logged, never stored in the DB - read from the environment only.
+    ai_api_key: str = ""
 
 
 settings = Settings()

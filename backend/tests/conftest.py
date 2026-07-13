@@ -6,10 +6,22 @@ from fastapi.testclient import TestClient
 from sqlalchemy import event
 from sqlalchemy.orm import Session
 
+from app.config import settings
 from app.db import engine, get_db
 from app.main import app
 from app.registry.models import Person
 from app.vocab import Role
+
+
+@pytest.fixture(autouse=True)
+def _disabled_ai_provider_by_default(monkeypatch):
+    """Tests must not depend on the developer's local .env - a real
+    IDC_AI_PROVIDER/IDC_AI_API_KEY in backend/.env must never make the
+    suite silently call a live AI provider. Individual AI tests override
+    this via their own monkeypatch (see test_starterpack_lifecycle.py /
+    test_ai_provider.py)."""
+    monkeypatch.setattr(settings, "ai_provider", "disabled")
+    monkeypatch.setattr(settings, "ai_api_key", "")
 
 
 @pytest.fixture()

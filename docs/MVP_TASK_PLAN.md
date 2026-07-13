@@ -18,7 +18,7 @@ Mirrors the vault note `CWS Internal Development Coordinator - MVP Implementatio
 - [x] **T7 Deterministic templates + intake form** — file list frozen per FR-016; selection by project_type/classification.
 - [x] **T8 AI tailoring + review workflow + zip export** — provider adapter; forbidden-data scans; human review before export; StarterPack + AIInteraction + audit records.
 
-**Phase 2 gate:** packs generated for 2 project types (verified: internal-web-app and operational-tool, both via real pilot projects); zero secrets in output (forbidden-data scan enforced pre-AI-call and on output). "70%+ sections accepted with light edits" cannot be measured yet — no real AI provider is approved/configured (`IDC_AI_PROVIDER=disabled` is the only wired path); revisit once a provider route is approved.
+**Phase 2 gate: met.** Packs generated for 2 project types (verified: internal-web-app and operational-tool, both via real pilot projects); zero secrets in output (forbidden-data scan enforced pre-AI-call and on output). Real AI tailoring is now live — Gregory approved OpenRouter (`IDC_AI_PROVIDER=openrouter`, free-tier model) 2026-07-13 and a real generation against the CWS Pulse Awards pilot produced a grounded, non-generic README overview end to end (generate → review → export). "70%+ sections accepted with light edits" is a T10 golden-set/rubric measurement, not yet formally scored - only one manual real-provider run has happened so far.
 
 ## Phase 3 - AI structured summary
 

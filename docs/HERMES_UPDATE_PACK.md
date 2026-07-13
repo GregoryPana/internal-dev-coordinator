@@ -18,6 +18,55 @@ Newest entries first. Each entry: task, date, agent, then notes.
 
 ---
 
+## T8 addendum - real OpenRouter provider wired and verified live (2026-07-13, Claude Sonnet 5)
+
+- **Provider approved by Gregory**: OpenRouter, specifically because it
+  fronts free-tier models and doesn't force a budget/vendor decision
+  before T10's golden-set evaluation exists. Resolves the open item from
+  the T8 entry below.
+- **Security incident, caught before it reached git history:** Gregory
+  pasted the real API key into `.env.example` (a tracked file) instead
+  of `.env` (gitignored). It was never committed - caught via `git
+  status`/`git diff` before any commit happened - but I moved the real
+  key to `backend/.env` (the file `app/config.py` actually reads,
+  relative to the backend/ working directory) and restored
+  `.env.example` to a placeholder immediately. No rotation needed since
+  it never entered version control, but worth remembering: **always
+  verify a secret landed in a gitignored file, not just "a .env-looking
+  file," before treating it as safe** - the filename similarity
+  (`.env` vs `.env.example`) is an easy mistake to make under time
+  pressure, for a human or an agent.
+- **Finding: OpenRouter free-tier models 429 unpredictably even for a
+  brand-new, zero-usage key.** Confirmed via OpenRouter's own `/api/v1/key`
+  endpoint that the key had `usage: 0` and no account-level restriction -
+  the 429s are shared upstream congestion on popular free models, not a
+  configuration problem. Model choice matters in practice: the initial
+  pick (`openai/gpt-oss-120b:free`) failed repeatedly; `google/gemma-4-31b-it
+  :free` responded reliably (3/3 in a row) and became the default. Added
+  bounded retry/backoff (3 retries, honors `Retry-After`) to
+  `OpenRouterProvider` regardless, since this is evidently normal
+  operating behavior for the free tier, not a rare edge case - a
+  starter-pack generation should not fail just because a free model
+  hiccuped once.
+- **Test-isolation bug found the same day it could have gone unnoticed
+  for a while:** once `backend/.env` had real OpenRouter config, the
+  full test suite silently started making live network calls in
+  whichever test relied on the *implicit* default of
+  `IDC_AI_PROVIDER=disabled` - one test's runtime jumped from ~3s total
+  suite time to 60+ seconds for that single test, which is how it was
+  caught. Fixed with an autouse `conftest.py` fixture that forces
+  `ai_provider="disabled"`/`ai_api_key=""` for every test unless a test
+  explicitly overrides it. **General lesson for this repo: never assume
+  a Settings default holds during tests once a developer's local `.env`
+  can override it - force the value explicitly in test setup.**
+- **Verified live, not just against mocks:** a direct `get_provider().
+  complete(...)` call, then a full real `generate → review → export`
+  cycle against the actual CWS Pulse Awards pilot project, produced a
+  genuinely AI-written, grounded README paragraph (distinct from the
+  deterministic fallback text) with a real `AIInteraction` row
+  (`passed`/`generated`, real token counts and latency). Test rows
+  cleaned up afterward.
+
 ## T8 - AI tailoring + review workflow + zip export (2026-07-13, Claude Sonnet 5)
 
 - **Open item resolved by design, not by picking a provider:** the MVP
@@ -263,15 +312,19 @@ Newest entries first. Each entry: task, date, agent, then notes.
   pilots (T6 imported both instead of picking one per
   `docs/PROJECT_SCOPE.md`'s "Pulse Awards or CWSCX" wording) - no action
   needed if four pilots is fine, otherwise delete one project row.
-- **Production AI provider route approval still outstanding.** T8 built
-  the full generate/review/export pipeline and the provider adapter, but
-  `IDC_AI_PROVIDER=disabled` is the only implemented path - no real model
-  has ever produced output for this app. Once Gregory approves a
-  provider (Anthropic/OpenAI/Azure OpenAI per the architecture spec's
-  recommended route), that's a small, contained addition
-  (`app/ai/provider.py`), not a redesign - but it does need the SDK added
-  as a dependency and a key/budget decision, which is explicitly outside
-  what an agent should decide unilaterally. This also blocks T9 (the
-  Phase 3 AI summary task) from producing real output, though T9's
-  source-bundle builder and validation logic can still be built and
-  tested against a fake provider the same way T8 was.
+- ~~Production AI provider route approval outstanding~~ - **resolved
+  2026-07-13**: Gregory approved OpenRouter (free-tier model, currently
+  `google/gemma-4-31b-it:free`), a real key is in `backend/.env`
+  (gitignored), and a live generate→review→export cycle has produced
+  real AI-tailored output. See the T8 addendum entry above. This also
+  unblocks T9 (Phase 3 AI summary task) for real-provider testing, though
+  free-tier 429 volatility means T9's tests should follow T8's pattern of
+  testing against a fake/mocked provider, reserving live calls for manual
+  smoke checks.
+- **Free-tier model reliability is a live, moving target.** OpenRouter's
+  free models 429 unpredictably and which model is "currently reliable"
+  can change hour to hour (see the T8 addendum). If `google/gemma-4-31b-it
+  :free` starts failing consistently, re-check OpenRouter's live model
+  list (`GET https://openrouter.ai/api/v1/models`, no auth needed) and
+  swap `IDC_AI_MODEL` - the retry/backoff in `OpenRouterProvider` handles
+  transient failures, but a fully saturated model needs a different pick.
