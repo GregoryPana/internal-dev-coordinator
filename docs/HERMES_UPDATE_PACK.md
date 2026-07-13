@@ -18,6 +18,38 @@ Newest entries first. Each entry: task, date, agent, then notes.
 
 ---
 
+## T6 - Vault seed import: mechanism built, real pilot data still needed (2026-07-13, Claude Sonnet 5)
+
+- **Blocker, same root cause as the T3-T5 notes below:** this session has no
+  filesystem access to the Hermes vault, so the real Health Fair / Pulse
+  Awards-or-CWSCX / VAS records (statuses, owners, doc inventories, status
+  history) could not be read directly. Per Gregory's explicit instruction,
+  **no placeholder/fabricated data was imported** - T6 is not being marked
+  done in `docs/MVP_TASK_PLAN.md` until the real data lands.
+- **What was built instead:** the full one-shot import mechanism -
+  `backend/app/seed_import/{schemas,service,cli}.py` - plus
+  `backend/app/seed_import/README.md` (exactly what to pull from the vault,
+  field by field, and why it matters for the later AI golden set) and
+  `backend/app/seed_import/templates/pilot_projects.template.json` (a
+  structurally-valid JSON skeleton for the 3 pilots with every real value
+  replaced by a `TODO` placeholder that **deliberately fails schema
+  validation** - confirmed by actually running the CLI against the
+  template and getting 11 validation errors, all on the TODO fields).
+- **Design decision:** the importer is idempotent by natural key (person by
+  email, project by slug, doc artifact by (project, artifact_type)) and
+  additive-only for status events (skips an event if the same
+  project+event_date+summary already exists). This means Gregory can hand
+  over a partial/rough export now, re-run the CLI as the vault notes get
+  corrected or extended, and never get duplicate rows.
+- **Next step:** Gregory (or Hermes) exports the real content per the
+  README's checklist into a copy of the template (outside version control,
+  e.g. `backend/seed_data/pilot_projects.json` - it will contain real
+  internal project details) and runs
+  `python -m app.seed_import.cli --file <path>`. Once that's done, flip the
+  T6 checkbox and log real verification evidence (not the synthetic-data
+  evidence currently in `docs/VERIFICATION_MATRIX.md`, which only proves
+  the mechanism works).
+
 ## T5 - Documentation matrix + RequiredDocProfile + deterministic gap list (2026-07-13, Claude Sonnet 5)
 
 - **Design decision:** `RequiredDocProfile` is a real, queryable table (not
@@ -112,6 +144,9 @@ Newest entries first. Each entry: task, date, agent, then notes.
 
 ## Open items for vault follow-up
 
-- No content yet requiring a vault decision change. Flag here if a future
-  task surfaces a scope question that needs Gregory/Hermes sign-off
-  (per `AGENTS.md` "Scope discipline") rather than silent agent judgment.
+- **T6 blocked on real data, not a decision.** Need the real Health Fair /
+  Pulse Awards-or-CWSCX / VAS records exported from the vault into
+  `backend/app/seed_import/templates/pilot_projects.template.json`'s shape
+  (copied outside version control first). See the T6 entry above and
+  `backend/app/seed_import/README.md` for the exact field checklist. Once
+  imported, these become the AI golden set for T9/T10.

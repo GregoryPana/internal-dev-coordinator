@@ -1,0 +1,80 @@
+{
+  "_comment": "T6 one-shot seed import template. Replace every TODO/PLACEHOLDER value with real content from the Hermes vault notes for these 3 pilot projects. Do not invent statuses, dates or doc inventories - leave a field null/empty if the real value isn't known yet rather than guessing. '_comment' keys are ignored by the importer; they exist to explain fields inline.",
+
+  "people": [
+    {
+      "_comment": "One entry per real owner/developer/author referenced below who isn't already in the DB (the bootstrap admin, gregory.panagary@cwseychelles.com, already exists from T2 and doesn't need to be listed again).",
+      "name": "TODO: real name",
+      "email": "TODO: real email",
+      "role_type": "developer_project_owner",
+      "department": "TODO: e.g. DTO"
+    }
+  ],
+
+  "projects": [
+    {
+      "_comment": "Project 1 of 3: Health Fair",
+      "name": "TODO: Health Fair - real project name from the vault",
+      "description": "TODO",
+      "business_purpose": "TODO",
+      "project_type": "internal-web-app",
+      "classification": "one-off",
+      "phase": "TODO: concept|discovery|build|pilot|live|handover|retired",
+      "status": "TODO: active|blocked|paused|complete|cancelled",
+      "priority": "TODO: high|medium|low",
+      "owner_email": "TODO: real owner's email (must be in 'people' above or already in the DB)",
+      "business_owner": "TODO or null",
+      "current_next_action": "TODO: the real current_next_action from the vault, or null",
+      "repo_url": null,
+      "environment_url": null,
+      "docs_url": null,
+      "tech_stack_summary": "TODO or null",
+      "status_events": [
+        {
+          "_comment": "At least one real, dated status update establishes data_as_of/freshness. Add one entry per real status update you have, not just the latest.",
+          "event_date": "TODO: YYYY-MM-DD",
+          "summary": "TODO: one or two sentences, from the real vault note",
+          "author_email": "TODO: real author's email",
+          "completed_work": "TODO or null",
+          "next_actions": "TODO or null",
+          "blockers": "TODO or null - null if nothing is blocking",
+          "verification_notes": "TODO or null"
+        }
+      ],
+      "documentation_artifacts": [
+        {
+          "_comment": "One entry per artifact_type that actually exists for this project (per docs/DATA_MODEL.md artifact_type vocab: user_guide, admin_guide, developer_guide, agent_guide, support_runbook, deployment_guide, verification_matrix, exit_md). Omit artifact types that don't exist yet - the deterministic gap list (T5) already treats anything absent here as 'missing'.",
+          "artifact_type": "exit_md",
+          "status": "TODO: missing|draft|current|stale|approved|retired",
+          "title": "TODO or null",
+          "source_path": "TODO: real link/path or null",
+          "owner_email": null,
+          "last_reviewed_at": null,
+          "notes": "TODO or null"
+        }
+      ]
+    },
+    {
+      "_comment": "Project 2 of 3: Pulse Awards or CWSCX (whichever the vault has richer real records for)",
+      "name": "TODO",
+      "project_type": "internal-web-app",
+      "classification": "one-off",
+      "phase": "TODO",
+      "status": "TODO",
+      "priority": "TODO",
+      "status_events": [],
+      "documentation_artifacts": []
+    },
+    {
+      "_comment": "Project 3 of 3: VAS",
+      "name": "TODO",
+      "project_type": "internal-web-app",
+      "classification": "one-off",
+      "phase": "TODO",
+      "status": "TODO",
+      "priority": "TODO",
+      "status_events": [],
+      "documentation_artifacts": []
+    }
+  ]
+}
