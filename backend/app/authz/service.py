@@ -8,8 +8,11 @@ Auth mode:
 - dev  : login stub only - identity comes from the X-User-Email header,
          falling back to settings.dev_default_user_email. The permission
          model below is REAL and enforced.
-- entra: Entra/OIDC token validation (production target, not yet built).
-         Mandatory the moment a second user exists.
+- entra: Bearer-token validation against the CWS Entra tenant (see
+         app.authz.entra). Mandatory the moment a second user exists.
+
+Either way, identity resolution ends in the same place: an active Person
+row, whose role drives every permission below.
 """
 
 from fastapi import Depends, Header, HTTPException, Request, status
@@ -30,12 +33,25 @@ def get_current_user(
     db: Session = Depends(get_db),
     x_user_email: str | None = Header(default=None),
 ) -> Person:
-    if settings.auth_mode != "dev":
+    if settings.auth_mode == "dev":
+        email = (x_user_email or settings.dev_default_user_email).strip().lower()
+    elif settings.auth_mode == "entra":
+        from app.authz import entra
+
+        authorization = request.headers.get("Authorization", "")
+        scheme, _, token = authorization.partition(" ")
+        if scheme.lower() != "bearer" or not token.strip():
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Missing bearer token.",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        email = entra.validate_token(token.strip())
+    else:
         raise HTTPException(
             status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail="Entra/OIDC auth not implemented yet; auth_mode must be 'dev' for local MVP.",
+            detail=f"Unknown auth_mode '{settings.auth_mode}'; expected 'dev' or 'entra'.",
         )
-    email = (x_user_email or settings.dev_default_user_email).strip().lower()
     person = db.scalar(select(Person).where(Person.email == email, Person.active.is_(True)))
     if person is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unknown or inactive user.")

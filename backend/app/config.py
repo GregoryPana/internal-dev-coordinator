@@ -20,6 +20,12 @@ class Settings(BaseSettings):
     auth_mode: str = "dev"  # dev | entra
     dev_default_user_email: str = "gregory.panagary@cwseychelles.com"
 
+    # Entra/OIDC (auth_mode=entra): tokens are validated against the tenant's
+    # JWKS; identity comes from the token's email claim and must still match
+    # an active Person row (same permission model as dev mode).
+    entra_tenant_id: str = ""
+    entra_client_id: str = ""  # the app registration's Application (client) ID
+
     # Freshness threshold in days (FR-023 / status-freshness metric).
     freshness_threshold_days: int = 14
 

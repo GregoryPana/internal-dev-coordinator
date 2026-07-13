@@ -1,0 +1,52 @@
+# Production-shaped stack: Postgres + backend (migrations at start) + nginx
+# frontend proxying /api. Not for local development - keep using
+# docker-compose.yml (db only) + uvicorn + vite for that.
+#
+# Usage: docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+# See docs/DEPLOYMENT.md for the full runbook, including required env vars.
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${IDC_DB_USER:-idc}
+      POSTGRES_PASSWORD: ${IDC_DB_PASSWORD:?set IDC_DB_PASSWORD in .env.prod}
+      POSTGRES_DB: ${IDC_DB_NAME:-idc}
+    volumes:
+      - idc_pgdata_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${IDC_DB_USER:-idc}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+    # No host port mapping: the DB is reachable only from the compose network.
+
+  backend:
+    build: ./backend
+    environment:
+      IDC_ENVIRONMENT: ${IDC_ENVIRONMENT:-production}
+      IDC_DATABASE_URL: postgresql+psycopg://${IDC_DB_USER:-idc}:${IDC_DB_PASSWORD:?}@db:5432/${IDC_DB_NAME:-idc}
+      IDC_AUTH_MODE: ${IDC_AUTH_MODE:-entra}
+      IDC_ENTRA_TENANT_ID: ${IDC_ENTRA_TENANT_ID:-}
+      IDC_ENTRA_CLIENT_ID: ${IDC_ENTRA_CLIENT_ID:-}
+      IDC_AI_PROVIDER: ${IDC_AI_PROVIDER:-disabled}
+      IDC_AI_MODEL: ${IDC_AI_MODEL:-}
+      IDC_AI_API_KEY: ${IDC_AI_API_KEY:-}
+      IDC_GITHUB_PROVIDER: ${IDC_GITHUB_PROVIDER:-disabled}
+      IDC_GITHUB_TOKEN: ${IDC_GITHUB_TOKEN:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "${IDC_HTTP_PORT:-8080}:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  idc_pgdata_prod:
