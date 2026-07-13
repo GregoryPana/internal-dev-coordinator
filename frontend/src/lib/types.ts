@@ -1,4 +1,5 @@
 import type {
+  AIAudience,
   ArtifactStatus,
   ArtifactType,
   Classification,
@@ -7,6 +8,7 @@ import type {
   ProjectPhase,
   ProjectStatus,
   ProjectType,
+  ValidationStatus,
 } from "./vocab";
 
 export interface ProjectOwner {
@@ -138,6 +140,35 @@ export interface StarterPack {
   status: HumanReviewStatus;
   reviewer: StarterPackReviewer | null;
   export_path: string | null;
+  created_at: string;
+}
+
+export interface SummaryOutput {
+  summary: string;
+  assumptions: string[];
+  gaps: string[];
+  recommended_next_actions: string[];
+  requires_human_review: boolean;
+  confidence: number;
+}
+
+export interface AIInteraction {
+  id: number;
+  project_id: number;
+  task_type: string;
+  audience: AIAudience | null;
+  prompt_id: string;
+  prompt_version: number;
+  source_ids_json: Record<string, unknown>;
+  model_provider: string;
+  model_name: string;
+  output_json: SummaryOutput | null;
+  input_tokens: number | null;
+  output_tokens: number | null;
+  latency_ms: number | null;
+  error_category: string | null;
+  validation_status: ValidationStatus;
+  human_review_status: HumanReviewStatus;
   created_at: string;
 }
 

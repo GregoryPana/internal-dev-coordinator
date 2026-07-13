@@ -22,7 +22,7 @@ Mirrors the vault note `CWS Internal Development Coordinator - MVP Implementatio
 
 ## Phase 3 - AI structured summary
 
-- [ ] **T9 Source-bundle builder + AI summary task** — audience-parameterised; structured JSON output; stale caveats; full AIInteraction logging.
+- [x] **T9 Source-bundle builder + AI summary task** — audience-parameterised; structured JSON output; stale caveats; full AIInteraction logging.
 - [ ] **T10 Golden set + rubric evaluation** — ~10 golden bundles from pilot records; 5-dimension rubric (grounded/accurate/complete/safe/useful); scored on every prompt version change.
 
-**Phase 3 gate:** summaries cite source IDs; stale caveats fire; rubric pass; review state machine enforced.
+**Phase 3 gate: partially met.** Summaries cite source IDs (`source_ids_json`, deterministically built from the bundle, not the model's self-report); stale caveats fire (enforced deterministically, not just prompted); review state machine (generated → reviewed/rejected) enforced. Live-verified against the real VAS Network Check pilot (developer and manager audience) - correctly grounded, real documentation gaps cited, no hallucinated facts observed. Rubric pass is T10's job - not yet run.

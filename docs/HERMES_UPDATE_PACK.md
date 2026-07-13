@@ -18,6 +18,47 @@ Newest entries first. Each entry: task, date, agent, then notes.
 
 ---
 
+## T9 - Source-bundle builder + AI project-summary task (2026-07-13, Claude Sonnet 5)
+
+- **"Never see what the user can't" is enforced structurally, not by
+  convention.** `app.ai.source_bundle.build()` takes an already-fetched
+  `Project` and does no permission checking of its own - the router calls
+  `authz.require_read()` before the bundle builder is ever invoked, so
+  there is no code path where the AI summary task can see a project the
+  requesting user's role wouldn't already let them view directly. Worth
+  keeping this shape (authz first, bundle builder trusts its input)
+  rather than duplicating permission logic inside the AI layer.
+- **Stale caveats (FR-023) are enforced deterministically, not left to
+  prompt compliance.** The prompt asks the model to flag staleness, but
+  `_enforce_stale_caveat()` in `summary_service.py` checks
+  `Project.is_stale` itself and appends a caveat to `gaps` if the model's
+  own output doesn't already mention it. Same design philosophy as T8's
+  forbidden-data scanning: don't trust the model to reliably do the
+  safety-critical thing, verify and correct in code.
+- **`AIInteraction.source_ids_json` is my code's record of what was
+  actually included in the bundle, not the model's self-reported
+  `source_ids`.** The structured output schema still asks the model for
+  its own view (per architecture spec 11.4's suggested field list), but
+  that's stored in `output_json`, not treated as the audit-grade source
+  citation - models can misremember or invent IDs, deterministic bundle
+  construction can't.
+- **No deterministic fallback exists for this task, unlike T8's starter
+  packs.** A project summary is inherently AI-generated; if the provider
+  fails or output is malformed, there's nothing sensible to fall back to
+  - the correct behavior is a cleanly recorded failed `AIInteraction`
+  (`validation_status`/`error_category` set, `output_json=null`) that the
+  UI shows as "this attempt failed, try again," not a crash and not a
+  fabricated summary.
+- **Real free-tier volatility observed again, and handled correctly
+  under real conditions, not just mocked:** during live browser testing
+  against the real VAS Network Check pilot, 3 of 4 generation attempts
+  succeeded with genuinely useful, varied, grounded summaries (correctly
+  citing VAS's real missing docs), and 1 hit the same OpenRouter 429-
+  after-retries congestion documented in the T8 addendum - it rendered as
+  a clean "Rejected / Failed" card in the same list, no crash, no console
+  error. This is the intended behavior, not a bug: free-tier AI output
+  should degrade to a visible, retryable failure, never a silent one.
+
 ## T8 addendum - real OpenRouter provider wired and verified live (2026-07-13, Claude Sonnet 5)
 
 - **Provider approved by Gregory**: OpenRouter, specifically because it

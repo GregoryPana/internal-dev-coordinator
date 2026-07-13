@@ -7,6 +7,7 @@ docs/MVP_TASK_PLAN.md).
 
 from fastapi import FastAPI
 
+from app.ai.router import router as ai_router
 from app.config import settings
 from app.docs_matrix.router import router as docs_matrix_router
 from app.registry.router import router as registry_router
@@ -24,12 +25,9 @@ app.include_router(registry_router)
 app.include_router(status_router)
 app.include_router(docs_matrix_router)
 app.include_router(starterpack_router)
+app.include_router(ai_router)
 
 
 @app.get("/api/health")
 def health() -> dict:
     return {"status": "ok", "app": settings.app_name, "env": settings.environment}
-
-
-# Routers land per task:
-# T9: app.ai.router

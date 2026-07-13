@@ -131,3 +131,26 @@ export const HUMAN_REVIEW_STATUS_TONE: Record<HumanReviewStatus, ChipTone> = {
   exported: "success",
   rejected: "danger",
 };
+
+export const AI_AUDIENCES = ["developer", "manager"] as const;
+export type AIAudience = (typeof AI_AUDIENCES)[number];
+
+export const AI_AUDIENCE_LABELS: Record<AIAudience, string> = {
+  developer: "Developer",
+  manager: "Manager",
+};
+
+export const VALIDATION_STATUSES = [
+  "passed",
+  "failed_schema",
+  "failed_missing_sources",
+  "failed_forbidden_data",
+] as const;
+export type ValidationStatus = (typeof VALIDATION_STATUSES)[number];
+
+export const VALIDATION_STATUS_LABELS: Record<ValidationStatus, string> = {
+  passed: "Passed",
+  failed_schema: "Failed - malformed output",
+  failed_missing_sources: "Failed - missing sources",
+  failed_forbidden_data: "Failed - forbidden data detected",
+};

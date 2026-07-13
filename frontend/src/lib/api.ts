@@ -1,5 +1,6 @@
-import type { ArtifactType, HumanReviewStatus } from "./vocab";
+import type { AIAudience, ArtifactType, HumanReviewStatus } from "./vocab";
 import type {
+  AIInteraction,
   DocArtifactUpsertPayload,
   DocMatrixEntry,
   IntakeFormValues,
@@ -134,4 +135,31 @@ export async function exportStarterPack(
     throw new ApiError(resp.status, body.detail || `Request failed (${resp.status})`);
   }
   return resp.blob();
+}
+
+export function generateSummary(
+  userEmail: string,
+  projectId: number,
+  audience: AIAudience
+): Promise<AIInteraction> {
+  return request(`/api/projects/${projectId}/ai/summary`, userEmail, {
+    method: "POST",
+    body: JSON.stringify({ audience }),
+  });
+}
+
+export function listSummaries(userEmail: string, projectId: number): Promise<AIInteraction[]> {
+  return request(`/api/projects/${projectId}/ai/summaries`, userEmail);
+}
+
+export function reviewSummary(
+  userEmail: string,
+  projectId: number,
+  interactionId: number,
+  decision: Extract<HumanReviewStatus, "reviewed" | "rejected">
+): Promise<AIInteraction> {
+  return request(`/api/projects/${projectId}/ai/summaries/${interactionId}/review`, userEmail, {
+    method: "POST",
+    body: JSON.stringify({ decision }),
+  });
 }
