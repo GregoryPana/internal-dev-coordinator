@@ -121,12 +121,20 @@ export function ProjectProfile() {
         title={project.name}
         subtitle={project.business_purpose || project.description || "No purpose recorded yet."}
         actions={
-          <Link
-            to={`/projects/${project.id}/edit`}
-            className="rounded-md border border-border bg-surface px-3 py-1.5 text-sm font-medium text-text hover:bg-surface-muted"
-          >
-            Edit project
-          </Link>
+          <>
+            <Link
+              to={`/projects/${project.id}/starter-pack`}
+              className="rounded-md border border-border bg-surface px-3 py-1.5 text-sm font-medium text-text hover:bg-surface-muted"
+            >
+              Starter pack
+            </Link>
+            <Link
+              to={`/projects/${project.id}/edit`}
+              className="rounded-md border border-border bg-surface px-3 py-1.5 text-sm font-medium text-text hover:bg-surface-muted"
+            >
+              Edit project
+            </Link>
+          </>
         }
       />
 

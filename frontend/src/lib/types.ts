@@ -104,6 +104,25 @@ export interface DocArtifactUpsertPayload {
   notes: string | null;
 }
 
+export interface IntakeFormValues {
+  users: string;
+  workflow: string;
+  data_sensitivity: string;
+  integrations: string;
+  deployment_target: string;
+  notes: string;
+}
+
+export interface GeneratedFile {
+  path: string;
+  content: string;
+}
+
+export interface StarterPackPreview {
+  project_id: number;
+  files: GeneratedFile[];
+}
+
 export type ProjectFormValues = Pick<
   Project,
   | "name"

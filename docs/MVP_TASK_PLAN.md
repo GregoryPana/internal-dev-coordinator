@@ -15,7 +15,7 @@ Mirrors the vault note `CWS Internal Development Coordinator - MVP Implementatio
 
 ## Phase 2 - Starter-pack generator
 
-- [ ] **T7 Deterministic templates + intake form** — file list frozen per FR-016; selection by project_type/classification.
+- [x] **T7 Deterministic templates + intake form** — file list frozen per FR-016; selection by project_type/classification.
 - [ ] **T8 AI tailoring + review workflow + zip export** — provider adapter; forbidden-data scans; human review before export; StarterPack + AIInteraction + audit records.
 
 **Phase 2 gate:** packs for 2 project types; 70%+ sections accepted with light edits; zero secrets in output.

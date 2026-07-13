@@ -2,8 +2,10 @@ import type { ArtifactType } from "./vocab";
 import type {
   DocArtifactUpsertPayload,
   DocMatrixEntry,
+  IntakeFormValues,
   Project,
   ProjectFormValues,
+  StarterPackPreview,
   StatusEvent,
   StatusEventPayload,
 } from "./types";
@@ -81,5 +83,16 @@ export function upsertDocumentationArtifact(
   return request(`/api/projects/${projectId}/documentation/${artifactType}`, userEmail, {
     method: "PUT",
     body: JSON.stringify(data),
+  });
+}
+
+export function generateStarterPackPreview(
+  userEmail: string,
+  projectId: number,
+  intake: IntakeFormValues
+): Promise<StarterPackPreview> {
+  return request(`/api/projects/${projectId}/starter-pack/preview`, userEmail, {
+    method: "POST",
+    body: JSON.stringify(intake),
   });
 }

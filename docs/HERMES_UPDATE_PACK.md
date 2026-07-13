@@ -18,6 +18,46 @@ Newest entries first. Each entry: task, date, agent, then notes.
 
 ---
 
+## T7 - Deterministic starter-pack templates + intake form (2026-07-13, Claude Sonnet 5)
+
+- **Scope discipline decision:** T7 does not create a `StarterPack` DB row
+  or touch persistence at all - the vault plan explicitly assigns
+  "StarterPack + AIInteraction + audit records" to T8, and the risks list
+  names "scope regrowth through starter-pack templates" as something to
+  watch. So `POST /api/projects/{id}/starter-pack/preview` is fully
+  stateless: it returns the 11 generated files in the response and
+  records only an audit event (`starter_pack_generated`, `object_id`
+  null since there's no `StarterPack` row yet). No migration in this
+  task at all.
+- **FR-016 file list is frozen and tested as a set-equality check** (`tests/
+  test_starterpack.py::test_preview_generates_exactly_the_fr016_file_list`)
+  - exactly `README.md`, `EXIT.md`, `OPENCODE.md`, `CLAUDE.md`,
+  `AGENTS.md`, `docs/PROJECT_SCOPE.md`, `docs/ARCHITECTURE.md`,
+  `docs/DATA_MODEL.md`, `docs/DEPLOYMENT.md`, `docs/OPERATIONS.md`,
+  `docs/VERIFICATION_MATRIX.md`. Adding a 12th file later should fail this
+  test until it's a deliberate, reviewed change to FR-016 itself.
+  `project_type`/`classification` already live on `Project` and drive
+  template selection directly - the intake form only captures what
+  `Project` doesn't (users, workflow, data sensitivity, integrations,
+  deployment target), matching FR-014.
+- **Template content is modeled on this repo's own real files**, since
+  the vault's MVP Implementation Plan explicitly calls this repo's own
+  bootstrapping "the first starter-pack validation" - e.g. the generated
+  `EXIT.md` mirrors the real structure found in the Health Fair pilot's
+  own `EXIT.md` (System owner / Business owner / Technical owner /
+  Runtime / Environment variables / Deployment / Backup and retention /
+  Known risks), and `AGENTS.md` mirrors this repo's own read-first/hard-
+  rules/verification-before-done structure.
+- **Template selection by project_type is real, not cosmetic:** verified
+  in both a unit test and a live browser run against the real VAS
+  Network Check project (`operational-tool`) that `docs/DEPLOYMENT.md`
+  gets the systemd-only pattern (no NGINX) and `AGENTS.md`/
+  `docs/DATA_MODEL.md` list only the artifact types VAS's project_type
+  actually requires (`developer_guide, agent_guide, support_runbook,
+  deployment_guide, verification_matrix, exit_md` - no `user_guide` or
+  `admin_guide`), pulled live from `vocab.REQUIRED_DOC_PROFILES` rather
+  than hard-coded per file.
+
 ## T6 - Vault seed import: real pilot data imported, Phase 1 gate met (2026-07-13, Claude Sonnet 5)
 
 - **Resolved:** Gregory supplied the vault path
