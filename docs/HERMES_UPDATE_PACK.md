@@ -18,6 +18,50 @@ Newest entries first. Each entry: task, date, agent, then notes.
 
 ---
 
+## T10 - Golden set + rubric evaluation (2026-07-13, Claude Sonnet 5)
+
+- **Action needed from Gregory:** `docs/eval/golden_set_report_v1_2026-07-13.md`
+  has 7 real, grounded, audience-differentiated AI summaries (one failed
+  cleanly on a model hiccup) with blank rubric-scoring tables per
+  `docs/eval/RUBRIC.md`'s 5 dimensions. This is the one part of T10 an
+  agent shouldn't do - the vault plan says explicitly "Gregory scores on
+  every prompt version change." Please fill in the scores; the Phase 3
+  gate's "rubric pass" criterion depends on it.
+- **Scope boundary respected:** the architecture spec's Deferred section
+  explicitly excludes a standalone "evaluation service" from MVP scope.
+  So T10 is CLI tooling only (`python -m app.ai.eval.run_golden_set`,
+  same shape as T6's seed-import CLI) - no new API endpoints, no new DB
+  tables, no persisted "GoldenSet"/"RubricScore" entities. The report is
+  a markdown file in `docs/eval/`, not a product feature.
+- **8 bundles, not "~10" - flagged, not silently padded.** The vault plan
+  says "~10 golden bundles"; there are only 4 real pilot projects from
+  T6, so 4 x 2 audiences = 8. Getting to 10 would mean either importing a
+  5th pilot (out of scope - seed import is one-shot, not something to
+  re-run to pad a number) or inventing meaningless duplicate bundles
+  against the same 4 projects, which would violate the "never fabricate"
+  principle just as much as inventing pilot data would have in T6. 8 real
+  bundles beats 10 with 2 fake ones.
+- **Free-tier volatility made 3 real runs necessary to get good coverage,
+  and that itself is useful evidence:** first attempt (default model
+  `google/gemma-4-31b-it:free`) got 4/8; a same-day retry got only 2/8 -
+  congestion on that specific model had clearly gotten worse since T8/T9
+  testing, confirming this really is a moving target, not a one-time
+  fluke. Checked OpenRouter's live model list, found
+  `nvidia/nemotron-nano-9b-v2:free` responding reliably, and reran with
+  `IDC_AI_MODEL` overridden just for that invocation (not changing the
+  shipped default, which stays `google/gemma-4-31b-it:free` for now) -
+  got 7/8. **Practical takeaway for anyone re-running the golden set
+  later:** if the default model is having a bad day, check
+  `GET https://openrouter.ai/api/v1/models` (no auth needed) for a
+  currently-healthy free model and pass `IDC_AI_MODEL=<model> python -m
+  app.ai.eval.run_golden_set` rather than waiting it out or concluding
+  the harness is broken.
+- **The one real failure in the final report (`health-fair-2026` /
+  manager, `malformed_output`) was left in the report rather than
+  silently re-run until clean.** An evaluation report that only shows
+  successes would misrepresent how the pipeline behaves in practice -
+  the failure-handling path itself is part of what's being evaluated.
+
 ## T9 - Source-bundle builder + AI project-summary task (2026-07-13, Claude Sonnet 5)
 
 - **"Never see what the user can't" is enforced structurally, not by
@@ -342,6 +386,10 @@ Newest entries first. Each entry: task, date, agent, then notes.
 
 ## Open items for vault follow-up
 
+- **Score the T10 golden set.** `docs/eval/golden_set_report_v1_2026-07-13.md`
+  is ready for Gregory's rubric scores (see the T10 entry above and
+  `docs/eval/RUBRIC.md`). This is the last open item before the Phase 3
+  gate can be marked fully met.
 - **Confirm the correct Hermes vault path.** `docs/PROJECT_SCOPE.md` /
   `docs/AGENT_DESIGN_SKILLS.md` reference `/home/gpanagary/.hermes/...`
   (a path this Windows session cannot see), but the actual vault turned
