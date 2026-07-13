@@ -95,6 +95,27 @@ the fourth (prompt v2 iteration) stays blocked on his T10 rubric scores.
 - T10 rubric scoring still pending (see T10 entry below) - prompt v2
   iteration waits on it.
 
+**Product direction from Gregory (2026-07-14) - for the full platform:**
+
+- **Active tracking of all working platforms/repos**, not just
+  read-on-page-view: the current repo-signals integration fetches live
+  when a profile is opened and stores nothing. Full platform should
+  actively track every connected project (scheduled polling or webhooks),
+  persist activity, and feed it into portfolio-level visibility - which
+  also reopens the deferred question of whether repo activity should
+  influence freshness/`data_as_of` semantics.
+- **Built-in guided setup/connection assistance** for both new projects
+  and existing ones: the app itself should walk a user through connecting
+  everything - state exactly what is needed (e.g. a fine-grained
+  read-only GitHub PAT with metadata/contents scope), show how to fetch
+  it (where in GitHub/Entra to click), and accept it in-app. Integration
+  configuration (repo connection, tokens, provider settings) must be
+  editable/addable/removable inside the application, not env-file-only
+  as today. Implies: per-project (or org-level) integration settings UI,
+  secure server-side credential storage (encrypted at rest, never exposed
+  back to the client), connection-test feedback, and setup-status
+  indicators ("repo connected / token missing / token expired").
+
 ---
 
 ## T10 - Golden set + rubric evaluation (2026-07-13, Claude Sonnet 5)
