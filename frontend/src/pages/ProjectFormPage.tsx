@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PageHeader } from "../components/PageHeader";
-import { ApiError, createProject, getProject, updateProject } from "../lib/api";
+import { ApiError, createProject, getAppConfig, getProject, updateProject } from "../lib/api";
 import type { ProjectFormValues } from "../lib/types";
 import {
   CLASSIFICATIONS,
@@ -32,6 +32,11 @@ const EMPTY_FORM: ProjectFormValues = {
   environment_url: "",
   docs_url: "",
   tech_stack_summary: "",
+  date_commenced: null,
+  expected_finish_date: null,
+  percent_complete: null,
+  uses_process_automation: false,
+  uses_ai: false,
 };
 
 function Field({
@@ -66,6 +71,11 @@ export function ProjectFormPage({ mode }: { mode: "create" | "edit" }) {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(mode === "edit");
+  const [edition, setEdition] = useState<"custom" | "product">("product");
+
+  useEffect(() => {
+    getAppConfig().then((c) => setEdition(c.edition)).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (mode !== "edit" || !id) return;
@@ -86,6 +96,11 @@ export function ProjectFormPage({ mode }: { mode: "create" | "edit" }) {
           environment_url: p.environment_url ?? "",
           docs_url: p.docs_url ?? "",
           tech_stack_summary: p.tech_stack_summary ?? "",
+          date_commenced: p.date_commenced,
+          expected_finish_date: p.expected_finish_date,
+          percent_complete: p.percent_complete,
+          uses_process_automation: p.uses_process_automation,
+          uses_ai: p.uses_ai,
         })
       )
       .catch((e: ApiError) => setError(e.message))
@@ -292,6 +307,69 @@ export function ProjectFormPage({ mode }: { mode: "create" | "edit" }) {
             />
           </Field>
         </div>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <Field label="Date commenced" htmlFor="date_commenced">
+            <input
+              id="date_commenced"
+              type="date"
+              value={form.date_commenced ?? ""}
+              onChange={(e) => set("date_commenced", e.target.value || null)}
+              className={inputClass}
+            />
+          </Field>
+          <Field label="Expected finish date" htmlFor="expected_finish_date">
+            <input
+              id="expected_finish_date"
+              type="date"
+              value={form.expected_finish_date ?? ""}
+              onChange={(e) => set("expected_finish_date", e.target.value || null)}
+              className={inputClass}
+            />
+          </Field>
+          <Field label="Completion (%)" htmlFor="percent_complete">
+            <input
+              id="percent_complete"
+              type="number"
+              min={0}
+              max={100}
+              value={form.percent_complete ?? ""}
+              onChange={(e) =>
+                set("percent_complete", e.target.value === "" ? null : Number(e.target.value))
+              }
+              placeholder="0–100"
+              className={inputClass}
+            />
+          </Field>
+        </div>
+
+        {edition === "custom" && (
+          <div className="rounded-md border border-border bg-surface-muted p-4">
+            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-text">
+              Portfolio metrics
+            </p>
+            <div className="flex flex-wrap gap-6">
+              <label className="flex items-center gap-2 text-sm text-text">
+                <input
+                  type="checkbox"
+                  checked={form.uses_process_automation}
+                  onChange={(e) => set("uses_process_automation", e.target.checked)}
+                  className="rounded border-border text-primary focus-visible:ring-2 focus-visible:ring-primary"
+                />
+                Enables process automation
+              </label>
+              <label className="flex items-center gap-2 text-sm text-text">
+                <input
+                  type="checkbox"
+                  checked={form.uses_ai}
+                  onChange={(e) => set("uses_ai", e.target.checked)}
+                  className="rounded border-border text-primary focus-visible:ring-2 focus-visible:ring-primary"
+                />
+                Implements or uses AI
+              </label>
+            </div>
+          </div>
+        )}
 
         <Field label="Tech stack summary" htmlFor="tech_stack_summary">
           <textarea

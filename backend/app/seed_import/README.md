@@ -22,8 +22,8 @@ it may contain real internal project details):
    vocabularies in `docs/DATA_MODEL.md` / `backend/app/vocab.py`:
    - `project_type`: `internal-web-app` | `operational-tool` | `prototype`
    - `classification`: `one-off` | `reusable` | `platform`
-   - `phase`: `concept` | `discovery` | `build` | `pilot` | `live` |
-     `handover` | `retired`
+   - `phase`: `concept` | `ongoing-development` | `pilot-test` | `live` |
+     `handover`
    - `status`: `active` | `blocked` | `paused` | `complete` | `cancelled`
    - `priority`: `high` | `medium` | `low`
 3. **Ownership** - the real owner's name/email/role (add them to the

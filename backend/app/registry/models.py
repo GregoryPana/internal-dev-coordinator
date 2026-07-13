@@ -1,9 +1,10 @@
 """Core people/project models owned by the registry domain."""
 
-from datetime import datetime
+from datetime import date, datetime
 
 from sqlalchemy import (
     Boolean,
+    Date,
     DateTime,
     Enum,
     ForeignKey,
@@ -66,6 +67,14 @@ class Project(Base):
     environment_url: Mapped[str | None] = mapped_column(String(500))
     docs_url: Mapped[str | None] = mapped_column(String(500))
     tech_stack_summary: Mapped[str | None] = mapped_column(Text)
+    # Project-management fields (2026-07-14): schedule + completion tracking.
+    date_commenced: Mapped[date | None] = mapped_column(Date)
+    expected_finish_date: Mapped[date | None] = mapped_column(Date)
+    percent_complete: Mapped[int | None] = mapped_column()  # 0-100, DB check constraint
+    # Custom-edition portfolio metrics: does this project automate a process /
+    # implement or use AI? Drives the "how many of our projects..." counts.
+    uses_process_automation: Mapped[bool] = mapped_column(Boolean, default=False)
+    uses_ai: Mapped[bool] = mapped_column(Boolean, default=False)
     # Freshness anchor: timestamp of the latest status event (FR-008/FR-023).
     data_as_of: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

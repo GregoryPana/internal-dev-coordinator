@@ -12,6 +12,11 @@ class Settings(BaseSettings):
 
     app_name: str = "internal-dev-coordinator"
     environment: str = "local"  # local | staging | production
+    # Edition gate (2026-07-14): "custom" is Gregory's own instance with
+    # personal portfolio metrics (AI-use / process-automation counts);
+    # "product" is the packaged-for-others cut that hides custom-only
+    # features. Gate features on this, never fork the codebase.
+    edition: str = "custom"  # custom | product
 
     database_url: str = "postgresql+psycopg://idc:idc@localhost:5455/idc"
 

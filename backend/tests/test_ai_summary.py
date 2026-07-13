@@ -56,7 +56,7 @@ def _create_project(client: TestClient, admin_email: str, **overrides) -> dict:
         "name": "AI Summary Test Project",
         "project_type": ProjectType.INTERNAL_WEB_APP.value,
         "classification": Classification.REUSABLE.value,
-        "phase": ProjectPhase.BUILD.value,
+        "phase": ProjectPhase.ONGOING_DEVELOPMENT.value,
         "status": ProjectStatus.ACTIVE.value,
         "priority": Priority.MEDIUM.value,
         **overrides,

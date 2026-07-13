@@ -65,6 +65,11 @@ class SeedProject(BaseModel):
     environment_url: str | None = None
     docs_url: str | None = None
     tech_stack_summary: str | None = None
+    date_commenced: date | None = None
+    expected_finish_date: date | None = None
+    percent_complete: int | None = Field(default=None, ge=0, le=100)
+    uses_process_automation: bool = False
+    uses_ai: bool = False
     status_events: list[SeedStatusEvent] = Field(default_factory=list)
     documentation_artifacts: list[SeedDocumentationArtifact] = Field(default_factory=list)
 

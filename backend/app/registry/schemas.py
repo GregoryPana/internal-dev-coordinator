@@ -1,6 +1,6 @@
 """Pydantic schemas for the registry domain (Project CRUD, T3)."""
 
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -31,6 +31,11 @@ class ProjectBase(BaseModel):
     environment_url: str | None = Field(default=None, max_length=500)
     docs_url: str | None = Field(default=None, max_length=500)
     tech_stack_summary: str | None = None
+    date_commenced: date | None = None
+    expected_finish_date: date | None = None
+    percent_complete: int | None = Field(default=None, ge=0, le=100)
+    uses_process_automation: bool = False
+    uses_ai: bool = False
 
 
 class ProjectCreate(ProjectBase):
@@ -56,6 +61,11 @@ class ProjectUpdate(BaseModel):
     environment_url: str | None = Field(default=None, max_length=500)
     docs_url: str | None = Field(default=None, max_length=500)
     tech_stack_summary: str | None = None
+    date_commenced: date | None = None
+    expected_finish_date: date | None = None
+    percent_complete: int | None = Field(default=None, ge=0, le=100)
+    uses_process_automation: bool | None = None
+    uses_ai: bool | None = None
 
 
 class ProjectRead(ProjectBase):

@@ -1,6 +1,7 @@
 import type { AIAudience, ArtifactType, AuditActionType, HumanReviewStatus } from "./vocab";
 import type {
   AIInteraction,
+  AppConfig,
   AuditEventPage,
   DocArtifactUpsertPayload,
   DocMatrixEntry,
@@ -37,6 +38,15 @@ async function request<T>(path: string, userEmail: string, init?: RequestInit): 
   }
   if (resp.status === 204) return undefined as T;
   return resp.json() as Promise<T>;
+}
+
+let cachedConfig: AppConfig | null = null;
+
+export async function getAppConfig(): Promise<AppConfig> {
+  if (cachedConfig) return cachedConfig;
+  const resp = await fetch("/api/health");
+  cachedConfig = (await resp.json()) as AppConfig;
+  return cachedConfig;
 }
 
 export function listProjects(userEmail: string): Promise<Project[]> {

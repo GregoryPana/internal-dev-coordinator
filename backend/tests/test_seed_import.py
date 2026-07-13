@@ -23,7 +23,7 @@ SYNTHETIC_FILE = {
             "name": "Synthetic Pilot Project",
             "project_type": "prototype",
             "classification": "one-off",
-            "phase": "pilot",
+            "phase": "pilot-test",
             "status": "active",
             "priority": "medium",
             "owner_email": "owner@example.test",

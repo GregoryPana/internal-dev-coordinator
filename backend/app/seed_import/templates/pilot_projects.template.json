@@ -19,7 +19,7 @@
       "business_purpose": "TODO",
       "project_type": "internal-web-app",
       "classification": "one-off",
-      "phase": "TODO: concept|discovery|build|pilot|live|handover|retired",
+      "phase": "TODO: concept|ongoing-development|pilot-test|live|handover",
       "status": "TODO: active|blocked|paused|complete|cancelled",
       "priority": "TODO: high|medium|low",
       "owner_email": "TODO: real owner's email (must be in 'people' above or already in the DB)",

@@ -38,6 +38,11 @@ export interface Project {
   environment_url: string | null;
   docs_url: string | null;
   tech_stack_summary: string | null;
+  date_commenced: string | null;
+  expected_finish_date: string | null;
+  percent_complete: number | null;
+  uses_process_automation: boolean;
+  uses_ai: boolean;
   data_as_of: string | null;
   is_stale: boolean;
   created_at: string;
@@ -227,4 +232,16 @@ export type ProjectFormValues = Pick<
   | "environment_url"
   | "docs_url"
   | "tech_stack_summary"
+  | "date_commenced"
+  | "expected_finish_date"
+  | "percent_complete"
+  | "uses_process_automation"
+  | "uses_ai"
 >;
+
+export interface AppConfig {
+  status: string;
+  app: string;
+  env: string;
+  edition: "custom" | "product";
+}

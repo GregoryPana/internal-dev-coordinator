@@ -12,7 +12,7 @@ PROJECT_PAYLOAD = {
     "description": "Annual health fair registration site.",
     "project_type": ProjectType.INTERNAL_WEB_APP.value,
     "classification": Classification.REUSABLE.value,
-    "phase": ProjectPhase.BUILD.value,
+    "phase": ProjectPhase.ONGOING_DEVELOPMENT.value,
     "status": ProjectStatus.ACTIVE.value,
     "priority": Priority.HIGH.value,
 }

@@ -18,6 +18,58 @@ Newest entries first. Each entry: task, date, agent, then notes.
 
 ---
 
+## PM fields, phase consolidation, edition gate, full register seed (2026-07-14, Claude Fable 5)
+
+Direct instructions from Gregory, all landed in one session:
+
+- **AI summary failures root-caused and fixed:** `google/gemma-4-31b-it:free`
+  started returning 404 upstream (still *listed* in OpenRouter's model list,
+  but dead at the completions endpoint) - that was the `provider_unavailable`
+  wave; `malformed_output` was ordinary free-tier flakiness. Default model
+  (code + `backend/.env`) switched to `nvidia/nemotron-nano-9b-v2:free`
+  after live-probing candidates; a real VAS manager summary generated
+  successfully post-fix. Lesson: a model being listed proves nothing -
+  probe the completions endpoint.
+- **Phase vocabulary consolidated to exactly five values** per Gregory:
+  `concept`, `ongoing-development`, `pilot-test`, `live`, `handover`.
+  Migration `a1c4f9d2b7e0` does the Postgres enum swap (rename old /
+  create new / USING-cast / drop old - values can't be removed in place)
+  and remaps existing rows: discovery→concept, build→ongoing-development,
+  pilot→pilot-test, retired→handover. Downgrade is lossy by nature and
+  documented as such.
+- **Project-management fields on Project:** `date_commenced`,
+  `expected_finish_date`, `percent_complete` (0-100, DB check constraint),
+  shown as a Delivery card on the profile and a Progress column on the
+  dashboard.
+- **Edition gate introduced** (`IDC_EDITION=custom|product`, default
+  custom, surfaced via /api/health): Gregory intends to package the app
+  for others, so custom-only features are gated on this flag - never
+  forked. First custom-only features: per-project `uses_process_automation`
+  and `uses_ai` booleans (portfolio metrics answering "how many of our
+  projects automate processes / use AI") with dashboard rollup cards.
+  Product edition hides the checkboxes and the two cards.
+- **Dashboard segregation:** "In delivery" (concept/ongoing-development/
+  pilot-test) vs "Live & completed" (live/handover phase or complete
+  status) as two separately-counted tables.
+- **Full register seeded:** all 13 remaining vault register entries
+  (STB OCR, ONT Device Capture, DC Onboarding, Billing Platform,
+  Track B Warehouse API, Data Archiving, P&P Governance, Access
+  Governance, R&D Pilots, AI-Strategy RFP, Vendor Evaluations, HR
+  Application Platform, and the IDC itself) imported with real register
+  data - statuses, blockers, next actions, repo/env links, and AI/
+  automation flags taken from the register's own KPI classification
+  (AI count: 2 = HR platform + IDC; automation count: 6). Portfolio now
+  holds 17 projects; the platform now tracks itself (entry #16,
+  pilot-test phase). Register→app status mapping judgment calls:
+  Drafted/Idea/Planned → concept+paused (or active where work is
+  demonstrably moving), Assessment/Enabling tracks typed as `prototype`
+  so they only owe agent_guide/exit_md docs. The seed remains idempotent
+  and gitignored.
+- 105/105 tests; migration verified with a full downgrade→upgrade cycle;
+  Playwright-verified at 1280/768.
+
+---
+
 ## Post-MVP session: polish + Phase 4 + production readiness (2026-07-13, Claude Fable 5)
 
 Gregory approved continuing past the MVP cut line on all fronts

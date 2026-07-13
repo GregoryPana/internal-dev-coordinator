@@ -31,7 +31,7 @@ def test_render_bundle_result_with_successful_output_includes_rubric_table(db) -
         name="Fake Project",
         project_type="prototype",
         classification="one-off",
-        phase="build",
+        phase="ongoing-development",
         status="active",
         priority="low",
     )
@@ -74,7 +74,7 @@ def test_render_bundle_result_with_failed_output_shows_failure_not_crash() -> No
         name="Fake Project",
         project_type="prototype",
         classification="one-off",
-        phase="build",
+        phase="ongoing-development",
         status="active",
         priority="low",
     )

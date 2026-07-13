@@ -16,7 +16,7 @@ import httpx
 from app.config import settings
 
 _OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
-_DEFAULT_OPENROUTER_MODEL = "google/gemma-4-31b-it:free"
+_DEFAULT_OPENROUTER_MODEL = "nvidia/nemotron-nano-9b-v2:free"  # gemma-4-31b started 404ing upstream 2026-07-14
 # OpenRouter's free-tier models share oversubscribed upstream capacity and
 # 429 often even for a fresh, unused key - observed directly while wiring
 # this up (see docs/HERMES_UPDATE_PACK.md). Retry a few times before

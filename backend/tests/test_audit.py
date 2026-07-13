@@ -14,7 +14,7 @@ PROJECT_PAYLOAD = {
     "name": "Audit Trail Project",
     "project_type": ProjectType.OPERATIONAL_TOOL.value,
     "classification": Classification.REUSABLE.value,
-    "phase": ProjectPhase.BUILD.value,
+    "phase": ProjectPhase.ONGOING_DEVELOPMENT.value,
     "status": ProjectStatus.ACTIVE.value,
     "priority": Priority.MEDIUM.value,
 }

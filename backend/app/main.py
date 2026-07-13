@@ -34,4 +34,9 @@ app.include_router(repo_router)
 
 @app.get("/api/health")
 def health() -> dict:
-    return {"status": "ok", "app": settings.app_name, "env": settings.environment}
+    return {
+        "status": "ok",
+        "app": settings.app_name,
+        "env": settings.environment,
+        "edition": settings.edition,
+    }

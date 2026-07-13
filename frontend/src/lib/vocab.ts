@@ -1,14 +1,13 @@
 // Controlled vocabularies - mirrors backend/app/vocab.py and docs/DATA_MODEL.md.
 // Never invent values here; a new value requires a backend migration + docs update first.
 
+// Consolidated 2026-07-14: exactly five phases (was 7).
 export const PROJECT_PHASES = [
   "concept",
-  "discovery",
-  "build",
-  "pilot",
+  "ongoing-development",
+  "pilot-test",
   "live",
   "handover",
-  "retired",
 ] as const;
 export type ProjectPhase = (typeof PROJECT_PHASES)[number];
 
@@ -26,12 +25,10 @@ export type Classification = (typeof CLASSIFICATIONS)[number];
 
 export const PROJECT_PHASE_LABELS: Record<ProjectPhase, string> = {
   concept: "Concept",
-  discovery: "Discovery",
-  build: "Build",
-  pilot: "Pilot",
+  "ongoing-development": "Ongoing Development",
+  "pilot-test": "Pilot/Test",
   live: "Live",
   handover: "Handover",
-  retired: "Retired",
 };
 
 export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {

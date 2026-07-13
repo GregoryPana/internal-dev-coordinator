@@ -29,7 +29,7 @@ WEB_APP_PROJECT = {
     "name": "Web App Thing",
     "project_type": ProjectType.INTERNAL_WEB_APP.value,
     "classification": Classification.REUSABLE.value,
-    "phase": ProjectPhase.BUILD.value,
+    "phase": ProjectPhase.ONGOING_DEVELOPMENT.value,
     "status": ProjectStatus.ACTIVE.value,
     "priority": Priority.MEDIUM.value,
 }

@@ -7,7 +7,7 @@ Entities and controlled vocabularies for the MVP. Vocabularies are implemented i
 | Entity | Key fields |
 |---|---|
 | Person | id, name, email, role_type, department, active |
-| Project | id, slug, name, description, business_purpose, project_type, classification, phase, status, priority, owner_id, business_owner, current_next_action, repo_url, environment_url, docs_url, tech_stack_summary, data_as_of, created_at, updated_at |
+| Project | id, slug, name, description, business_purpose, project_type, classification, phase, status, priority, owner_id, business_owner, current_next_action, repo_url, environment_url, docs_url, tech_stack_summary, date_commenced, expected_finish_date, percent_complete, uses_process_automation, uses_ai, data_as_of, created_at, updated_at |
 | ProjectMember | project_id, person_id, role, permissions |
 | StatusEvent | id, project_id, author_id, event_date, summary, completed_work, next_actions, blockers, verification_notes, created_at |
 | RequiredDocProfile | id, project_type, artifact_type, required, notes |
@@ -23,7 +23,7 @@ Deferred entities (do not create): WorkItem, Risk, Decision, Milestone, Reposito
 
 | Vocabulary | Values |
 |---|---|
-| Project phase | concept, discovery, build, pilot, live, handover, retired |
+| Project phase | concept, ongoing-development, pilot-test, live, handover *(consolidated 2026-07-14; was 7 values)* |
 | Project status | active, blocked, paused, complete, cancelled |
 | Priority | high, medium, low |
 | project_type | internal-web-app, operational-tool, prototype |

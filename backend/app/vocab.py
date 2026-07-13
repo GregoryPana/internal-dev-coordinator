@@ -10,13 +10,15 @@ from enum import StrEnum
 
 
 class ProjectPhase(StrEnum):
+    """Consolidated per Gregory 2026-07-14: exactly these five phases.
+    (Old values discovery->concept, build->ongoing-development,
+    pilot->pilot-test, retired->handover; migration a1c4f9d2b7e0.)"""
+
     CONCEPT = "concept"
-    DISCOVERY = "discovery"
-    BUILD = "build"
-    PILOT = "pilot"
+    ONGOING_DEVELOPMENT = "ongoing-development"
+    PILOT_TEST = "pilot-test"
     LIVE = "live"
     HANDOVER = "handover"
-    RETIRED = "retired"
 
 
 class ProjectStatus(StrEnum):

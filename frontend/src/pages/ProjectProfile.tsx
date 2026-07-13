@@ -157,6 +157,8 @@ export function ProjectProfile() {
         <StatusChip label={`${PRIORITY_LABELS[project.priority]} priority`} tone="neutral" />
         <FreshnessBadge dataAsOf={project.data_as_of} isStale={project.is_stale} />
         {project.status === "blocked" && <StatusChip label="Blocked - needs attention" tone="danger" />}
+        {project.uses_ai && <StatusChip label="Uses AI" tone="neutral" />}
+        {project.uses_process_automation && <StatusChip label="Process automation" tone="neutral" />}
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -199,6 +201,46 @@ export function ProjectProfile() {
         </div>
 
         <div className="space-y-6">
+          <div className="rounded-lg border border-border bg-surface p-5">
+            <h2 className="mb-1 text-sm font-semibold text-text">Delivery</h2>
+            <dl className="divide-y divide-border">
+              <MetadataRow
+                label="Commenced"
+                value={
+                  project.date_commenced
+                    ? new Date(project.date_commenced + "T00:00:00").toLocaleDateString()
+                    : "—"
+                }
+              />
+              <MetadataRow
+                label="Expected finish"
+                value={
+                  project.expected_finish_date
+                    ? new Date(project.expected_finish_date + "T00:00:00").toLocaleDateString()
+                    : "—"
+                }
+              />
+              <MetadataRow
+                label="Completion"
+                value={
+                  project.percent_complete != null ? (
+                    <span className="flex items-center gap-2">
+                      <span className="h-1.5 w-28 rounded-full bg-surface-muted">
+                        <span
+                          className="block h-1.5 rounded-full bg-primary"
+                          style={{ width: `${project.percent_complete}%` }}
+                        />
+                      </span>
+                      <span className="tabular-nums">{project.percent_complete}%</span>
+                    </span>
+                  ) : (
+                    "—"
+                  )
+                }
+              />
+            </dl>
+          </div>
+
           <div className="rounded-lg border border-border bg-surface p-5">
             <h2 className="mb-1 text-sm font-semibold text-text">Ownership</h2>
             <dl className="divide-y divide-border">

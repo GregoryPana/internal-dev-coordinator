@@ -4,7 +4,7 @@ import { EmptyState } from "../components/EmptyState";
 import { FreshnessBadge } from "../components/FreshnessBadge";
 import { PageHeader } from "../components/PageHeader";
 import { StatusChip } from "../components/StatusChip";
-import { ApiError, listProjects } from "../lib/api";
+import { ApiError, getAppConfig, listProjects } from "../lib/api";
 import type { Project } from "../lib/types";
 import {
   PRIORITIES,
@@ -29,6 +29,12 @@ type SortKey = (typeof SORT_OPTIONS)[number]["value"];
 
 const PRIORITY_RANK: Record<Priority, number> = { high: 0, medium: 1, low: 2 };
 
+// Dashboard segregation: delivered = live/handover phase or completed status;
+// everything else is still in the delivery pipeline.
+function isDelivered(p: Project): boolean {
+  return p.phase === "live" || p.phase === "handover" || p.status === "complete";
+}
+
 export function PortfolioDashboard() {
   const { email } = useCurrentUser();
   const [projects, setProjects] = useState<Project[] | null>(null);
@@ -39,6 +45,11 @@ export function PortfolioDashboard() {
   const [priorityFilter, setPriorityFilter] = useState<Priority | "">("");
   const [staleOnly, setStaleOnly] = useState(false);
   const [sortKey, setSortKey] = useState<SortKey>("priority");
+  const [edition, setEdition] = useState<"custom" | "product">("product");
+
+  useEffect(() => {
+    getAppConfig().then((c) => setEdition(c.edition)).catch(() => {});
+  }, []);
 
   useEffect(() => {
     setProjects(null);
@@ -50,6 +61,8 @@ export function PortfolioDashboard() {
 
   const blockedCount = projects?.filter((p) => p.status === "blocked").length ?? 0;
   const staleCount = projects?.filter((p) => p.is_stale).length ?? 0;
+  const aiCount = projects?.filter((p) => p.uses_ai).length ?? 0;
+  const automationCount = projects?.filter((p) => p.uses_process_automation).length ?? 0;
 
   const visible = useMemo(() => {
     if (!projects) return null;
@@ -119,7 +132,11 @@ export function PortfolioDashboard() {
       )}
 
       {projects && projects.length > 0 && (
-        <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div
+          className={`mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3 ${
+            edition === "custom" ? "lg:grid-cols-5" : ""
+          }`}
+        >
           <SummaryCard label="Total projects" value={projects.length} onClick={clearFilters} />
           <SummaryCard
             label="Blocked"
@@ -141,6 +158,12 @@ export function PortfolioDashboard() {
               setStaleOnly(!staleOnly);
             }}
           />
+          {edition === "custom" && (
+            <>
+              <SummaryCard label="Uses AI" value={aiCount} />
+              <SummaryCard label="Process automation" value={automationCount} />
+            </>
+          )}
         </div>
       )}
 
@@ -248,15 +271,56 @@ export function PortfolioDashboard() {
       )}
 
       {visible && visible.length > 0 && (
+        <div className="space-y-8">
+          <ProjectSection
+            title="In delivery"
+            subtitle="Concept, ongoing development and pilot/test projects."
+            projects={visible.filter((p) => !isDelivered(p))}
+          />
+          <ProjectSection
+            title="Live & completed"
+            subtitle="Projects in production, handed over, or marked complete."
+            projects={visible.filter(isDelivered)}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ProjectSection({
+  title,
+  subtitle,
+  projects,
+}: {
+  title: string;
+  subtitle: string;
+  projects: Project[];
+}) {
+  return (
+    <section>
+      <div className="mb-2 flex items-baseline gap-3">
+        <h2 className="text-sm font-semibold text-text">{title}</h2>
+        <span className="text-xs text-muted-text">{subtitle}</span>
+        <span className="ml-auto text-xs tabular-nums text-muted-text">
+          {projects.length} project{projects.length === 1 ? "" : "s"}
+        </span>
+      </div>
+      {projects.length === 0 ? (
+        <p className="rounded-lg border border-dashed border-border bg-surface-muted px-4 py-3 text-sm text-muted-text">
+          Nothing here for the current filters.
+        </p>
+      ) : (
         <div className="overflow-x-auto rounded-lg border border-border bg-surface">
-          <table className="w-full min-w-[720px] table-fixed text-left text-sm">
+          <table className="w-full min-w-[820px] table-fixed text-left text-sm">
             <colgroup>
               <col className="w-48" />
-              <col className="w-24" />
+              <col className="w-32" />
               <col className="w-28" />
               <col className="w-20" />
+              <col className="w-24" />
               <col className="w-32" />
-              <col className="w-56" />
+              <col className="w-52" />
               <col className="w-44" />
             </colgroup>
             <thead className="bg-surface-muted text-xs uppercase tracking-wide text-muted-text">
@@ -265,13 +329,14 @@ export function PortfolioDashboard() {
                 <th className="px-4 py-2 font-medium">Phase</th>
                 <th className="px-4 py-2 font-medium">Status</th>
                 <th className="px-4 py-2 font-medium">Priority</th>
+                <th className="px-4 py-2 font-medium">Progress</th>
                 <th className="px-4 py-2 font-medium">Owner</th>
                 <th className="px-4 py-2 font-medium">Next action</th>
                 <th className="px-4 py-2 font-medium">Freshness</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {visible.map((p) => (
+              {projects.map((p) => (
                 <tr key={p.id} className="hover:bg-surface-muted/60">
                   <td className="truncate px-4 py-3">
                     <Link to={`/projects/${p.id}`} className="font-medium text-primary hover:underline">
@@ -283,6 +348,21 @@ export function PortfolioDashboard() {
                     <StatusChip label={PROJECT_STATUS_LABELS[p.status]} tone={PROJECT_STATUS_TONE[p.status]} />
                   </td>
                   <td className="truncate px-4 py-3 text-text">{PRIORITY_LABELS[p.priority]}</td>
+                  <td className="px-4 py-3 text-muted-text">
+                    {p.percent_complete != null ? (
+                      <span className="flex items-center gap-1.5">
+                        <span className="h-1.5 w-12 rounded-full bg-surface-muted">
+                          <span
+                            className="block h-1.5 rounded-full bg-primary"
+                            style={{ width: `${p.percent_complete}%` }}
+                          />
+                        </span>
+                        <span className="text-xs tabular-nums">{p.percent_complete}%</span>
+                      </span>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
                   <td className="truncate px-4 py-3 text-muted-text">{p.owner?.name ?? "Unassigned"}</td>
                   <td className="truncate px-4 py-3 text-muted-text" title={p.current_next_action ?? ""}>
                     {p.current_next_action || "—"}
@@ -296,7 +376,7 @@ export function PortfolioDashboard() {
           </table>
         </div>
       )}
-    </div>
+    </section>
   );
 }
 
