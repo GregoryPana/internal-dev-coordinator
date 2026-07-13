@@ -18,6 +18,85 @@ Newest entries first. Each entry: task, date, agent, then notes.
 
 ---
 
+## Post-MVP session: polish + Phase 4 + production readiness (2026-07-13, Claude Fable 5)
+
+Gregory approved continuing past the MVP cut line on all fronts
+("proceed with all the given"). Three tracks landed as three commits;
+the fourth (prompt v2 iteration) stays blocked on his T10 rubric scores.
+
+**1. Polish pass (`4aba001`)** - in-scope depth over existing records:
+
+- Read-only audit API + UI: portfolio-wide feed at `/audit` (new authz
+  gate: admin/auditor only) and per-project trail at `/projects/:id/audit`
+  (anyone with project read). The audit router has GET routes only and a
+  test asserts that; the append-only source-scan test was extended to
+  permit an explicitly-listed read helper (`list_events`) - the write
+  surface is still `record()` alone.
+- FR-022 visibility gap closed: starter-pack *tailoring* AI runs were
+  logged but visible nowhere. New `GET /api/projects/{id}/ai/interactions`
+  (all task types) + an "AI activity log" table on the AI summary page
+  showing validation/review status and token counts for every run.
+- Portfolio dashboard: search/status/phase/priority/stale-only filters,
+  sorting (priority / name / oldest-data-first), and the rollup cards
+  (Total/Blocked/Stale) are now clickable filters.
+
+**2. Phase 4 - GitHub READ integration (`5888404`)**:
+
+- New `app/repo` package, deliberately mirroring the AI-provider adapter
+  pattern: `IDC_GITHUB_PROVIDER=disabled` by default, 501 when disabled,
+  fine-grained read-only PAT via `IDC_GITHUB_TOKEN` (optional - public
+  repos work unauthenticated). A scope-guard test asserts no write verbs
+  exist in the provider source, matching the scope doc's "no write
+  actions to external systems."
+- `GET /api/projects/{id}/repo-signals`: default branch, last push, last
+  commit, open PRs, open issues (PRs subtracted from GitHub's inflated
+  `open_issues_count`). 204 when the project has no parseable github.com
+  URL; 502 when GitHub can't be queried. Frontend card on the project
+  profile hides itself when there's nothing to say.
+- **Live-verified against real repos:** `GregoryPana/b2b-cx-platform`
+  and `cws-pulse-awards` are publicly visible and returned real signals
+  (CWSCX's last commit = merge of PR #12, matching its status evidence);
+  `health-fair-2026` and `vas-system-check` 404 unauthenticated - the
+  profile shows a soft "could not reach GitHub" note for those. **A
+  read-only PAT is needed to light up the two private pilots.**
+- Test-isolation lesson re-applied preemptively: conftest's autouse
+  fixture now forces `github_provider=disabled` too, so a future token in
+  `.env` can never make the suite hit live GitHub.
+
+**3. Production readiness (`ef5a469`)**:
+
+- Entra token validation is real now: `app/authz/entra.py` validates
+  Bearer JWTs against the tenant JWKS (RS256/issuer/audience/expiry via
+  PyJWT); the email claim must still match an active Person row, so
+  Entra provisioning alone grants nothing. In entra mode the dev
+  X-User-Email header is ignored (tested with locally-signed tokens).
+- Docker packaging: backend image runs `alembic upgrade head` before
+  serving; frontend image is a Vite build served by nginx that proxies
+  `/api` same-origin to the backend; `docker-compose.prod.yml` keeps the
+  DB off the host network and refuses to start without IDC_DB_PASSWORD.
+  Full stack smoke-tested on a fresh volume through nginx.
+- `docs/DEPLOYMENT.md` runbook: config rules, Entra app-registration
+  steps, backup/restore/upgrade/rollback, and known limits.
+- Gotcha worth remembering: **docker compose silently reads `./.env`
+  (the dev file) for interpolation when `--env-file` is omitted** - the
+  smoke test surfaced dev values leaking into the "prod" stack that way.
+  Runbook now says always pass `--env-file .env.prod`; `.gitignore` now
+  covers `.env.*` so `.env.prod` can never be committed.
+
+**Open items from this session (for the vault):**
+
+- **Frontend Entra sign-in (MSAL) is not wired.** The backend fully
+  validates tokens, but the React app still sends the dev header. This is
+  the single biggest gap between "packaged" and "multi-user production",
+  and it needs the Entra app registration to exist first (Gregory:
+  DEPLOYMENT.md section 3).
+- **Read-only GitHub PAT** wanted so repo signals work for the two
+  private pilot repos.
+- T10 rubric scoring still pending (see T10 entry below) - prompt v2
+  iteration waits on it.
+
+---
+
 ## T10 - Golden set + rubric evaluation (2026-07-13, Claude Sonnet 5)
 
 - **Action needed from Gregory:** `docs/eval/golden_set_report_v1_2026-07-13.md`
