@@ -64,17 +64,20 @@ def test_manager_sees_all_projects_developer_sees_only_membership(
 
     created = client.post("/api/projects", json=PROJECT_PAYLOAD, headers=_headers(admin.email)).json()
     db.add(ProjectMember(project_id=created["id"], person_id=dev.id, role=Role.DEVELOPER_PROJECT_OWNER))
-    client.post(
+    unrelated = client.post(
         "/api/projects",
         json={**PROJECT_PAYLOAD, "name": "Unrelated Project"},
         headers=_headers(admin.email),
-    )
+    ).json()
     db.commit()
 
     manager_list = client.get("/api/projects", headers=_headers(manager.email)).json()
     dev_list = client.get("/api/projects", headers=_headers(dev.email)).json()
 
-    assert len(manager_list) == 2
+    # Manager is portfolio-wide read - assert both new projects are visible rather than an
+    # exact count, since the dev DB may already hold other projects (e.g. seed-imported ones).
+    manager_ids = {p["id"] for p in manager_list}
+    assert {created["id"], unrelated["id"]} <= manager_ids
     assert len(dev_list) == 1
     assert dev_list[0]["id"] == created["id"]
 

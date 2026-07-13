@@ -30,3 +30,6 @@ Thumbs.db
 # app artifacts
 exports/
 *.zip
+
+# real vault-exported seed data (T6) - contains real internal project details
+backend/seed_data/

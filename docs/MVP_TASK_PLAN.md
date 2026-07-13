@@ -9,9 +9,9 @@ Mirrors the vault note `CWS Internal Development Coordinator - MVP Implementatio
 - [x] **T3 Project CRUD + portfolio dashboard + project profile** — incl. `current_next_action`, link fields, `tech_stack_summary`, `data_as_of` display, audit events.
 - [x] **T4 StatusEvent create/list + freshness computation** — stale flag (>14 days) on dashboard and profile.
 - [x] **T5 Documentation matrix + RequiredDocProfile + deterministic gap list** — no AI.
-- [ ] **T6 Vault seed import (one-shot)** — load Health Fair, Pulse/CWSCX, VAS with real statuses/doc inventories; these records become the AI golden set.
+- [x] **T6 Vault seed import (one-shot)** — loaded Health Fair, CWSCX, Pulse Awards and VAS with real statuses/doc inventories (both Pulse Awards and CWSCX included - see verification matrix); these records become the AI golden set.
 
-**Phase 1 gate:** 3 pilot projects live with real data; gap lists match documentation reality; audit trail populated; zero AI involved.
+**Phase 1 gate: met.** 4 pilot projects live with real data (exceeds the 3-project minimum); gap lists match real documentation inventory on disk; audit trail populated (`seed_import_run` x4 plus per-mutation events); zero AI involved.
 
 ## Phase 2 - Starter-pack generator
 
