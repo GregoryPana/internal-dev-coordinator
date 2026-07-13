@@ -140,6 +140,60 @@ export const AI_AUDIENCE_LABELS: Record<AIAudience, string> = {
   manager: "Manager",
 };
 
+export const AUDIT_ACTION_TYPES = [
+  "project_created",
+  "project_updated",
+  "status_event_created",
+  "doc_artifact_created",
+  "doc_artifact_updated",
+  "starter_pack_generated",
+  "starter_pack_reviewed",
+  "starter_pack_exported",
+  "ai_run_created",
+  "ai_output_reviewed",
+  "seed_import_run",
+  "member_added",
+  "member_removed",
+] as const;
+export type AuditActionType = (typeof AUDIT_ACTION_TYPES)[number];
+
+export const AUDIT_ACTION_TYPE_LABELS: Record<AuditActionType, string> = {
+  project_created: "Project created",
+  project_updated: "Project updated",
+  status_event_created: "Status event created",
+  doc_artifact_created: "Doc artifact created",
+  doc_artifact_updated: "Doc artifact updated",
+  starter_pack_generated: "Starter pack generated",
+  starter_pack_reviewed: "Starter pack reviewed",
+  starter_pack_exported: "Starter pack exported",
+  ai_run_created: "AI run created",
+  ai_output_reviewed: "AI output reviewed",
+  seed_import_run: "Seed import run",
+  member_added: "Member added",
+  member_removed: "Member removed",
+};
+
+export const AUDIT_OBJECT_TYPES = [
+  "project",
+  "status_event",
+  "documentation_artifact",
+  "starter_pack",
+  "ai_interaction",
+  "project_member",
+  "job",
+] as const;
+export type AuditObjectType = (typeof AUDIT_OBJECT_TYPES)[number];
+
+export const AUDIT_OBJECT_TYPE_LABELS: Record<AuditObjectType, string> = {
+  project: "Project",
+  status_event: "Status event",
+  documentation_artifact: "Documentation artifact",
+  starter_pack: "Starter pack",
+  ai_interaction: "AI interaction",
+  project_member: "Project member",
+  job: "Job",
+};
+
 export const VALIDATION_STATUSES = [
   "passed",
   "failed_schema",

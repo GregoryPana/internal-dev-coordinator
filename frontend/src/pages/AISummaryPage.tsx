@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { PageHeader } from "../components/PageHeader";
 import { StatusChip } from "../components/StatusChip";
-import { ApiError, generateSummary, listSummaries, reviewSummary } from "../lib/api";
+import { ApiError, generateSummary, listAIInteractions, listSummaries, reviewSummary } from "../lib/api";
 import type { AIInteraction } from "../lib/types";
 import {
   AI_AUDIENCES,
@@ -139,6 +139,7 @@ export function AISummaryPage() {
   const { email } = useCurrentUser();
   const [audience, setAudience] = useState<AIAudience>("developer");
   const [summaries, setSummaries] = useState<AIInteraction[] | null>(null);
+  const [interactions, setInteractions] = useState<AIInteraction[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [reviewingId, setReviewingId] = useState<number | null>(null);
@@ -147,6 +148,9 @@ export function AISummaryPage() {
     listSummaries(email, projectId)
       .then(setSummaries)
       .catch((e: ApiError) => setError(e.message));
+    listAIInteractions(email, projectId)
+      .then(setInteractions)
+      .catch(() => setInteractions(null));
   }
 
   useEffect(() => {
@@ -234,6 +238,76 @@ export function AISummaryPage() {
               onReview={(decision) => onReview(s.id, decision)}
             />
           ))}
+        </div>
+      )}
+
+      {interactions && interactions.length > 0 && (
+        <div className="mt-8">
+          <h2 className="mb-2 text-sm font-semibold text-text">AI activity log</h2>
+          <p className="mb-3 text-xs text-muted-text">
+            Every AI run against this project, all task types (FR-022). Full detail is stored in
+            the AIInteraction record.
+          </p>
+          <div className="overflow-x-auto rounded-md border border-border">
+            <table className="w-full min-w-[720px] table-fixed text-left text-sm">
+              <colgroup>
+                <col className="w-40" />
+                <col className="w-40" />
+                <col className="w-24" />
+                <col className="w-48" />
+                <col className="w-36" />
+                <col className="w-32" />
+                <col className="w-28" />
+              </colgroup>
+              <thead className="bg-surface-muted text-xs uppercase tracking-wide text-muted-text">
+                <tr>
+                  <th className="px-3 py-2 font-medium">When</th>
+                  <th className="px-3 py-2 font-medium">Task</th>
+                  <th className="px-3 py-2 font-medium">Audience</th>
+                  <th className="px-3 py-2 font-medium">Model</th>
+                  <th className="px-3 py-2 font-medium">Validation</th>
+                  <th className="px-3 py-2 font-medium">Review</th>
+                  <th className="px-3 py-2 font-medium">Tokens</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border bg-surface">
+                {interactions.map((run) => (
+                  <tr key={run.id} className="hover:bg-surface-muted/60">
+                    <td className="truncate px-3 py-2 text-muted-text" title={run.created_at}>
+                      {new Date(run.created_at).toLocaleString()}
+                    </td>
+                    <td className="truncate px-3 py-2 text-text">{run.task_type.replace(/_/g, " ")}</td>
+                    <td className="px-3 py-2 text-muted-text">
+                      {run.audience ? AI_AUDIENCE_LABELS[run.audience] : "—"}
+                    </td>
+                    <td
+                      className="truncate px-3 py-2 text-muted-text"
+                      title={`${run.model_provider}/${run.model_name}`}
+                    >
+                      {run.model_provider}/{run.model_name}
+                    </td>
+                    <td className="px-3 py-2">
+                      <StatusChip
+                        label={VALIDATION_STATUS_LABELS[run.validation_status]}
+                        tone={run.validation_status === "passed" ? "success" : "danger"}
+                      />
+                    </td>
+                    <td className="px-3 py-2">
+                      <StatusChip
+                        label={HUMAN_REVIEW_STATUS_LABELS[run.human_review_status]}
+                        tone={HUMAN_REVIEW_STATUS_TONE[run.human_review_status]}
+                      />
+                    </td>
+                    <td className="px-3 py-2 text-muted-text">
+                      {run.input_tokens != null && run.output_tokens != null
+                        ? `${run.input_tokens} / ${run.output_tokens}`
+                        : "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

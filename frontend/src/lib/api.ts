@@ -1,6 +1,7 @@
-import type { AIAudience, ArtifactType, HumanReviewStatus } from "./vocab";
+import type { AIAudience, ArtifactType, AuditActionType, HumanReviewStatus } from "./vocab";
 import type {
   AIInteraction,
+  AuditEventPage,
   DocArtifactUpsertPayload,
   DocMatrixEntry,
   IntakeFormValues,
@@ -150,6 +151,36 @@ export function generateSummary(
 
 export function listSummaries(userEmail: string, projectId: number): Promise<AIInteraction[]> {
   return request(`/api/projects/${projectId}/ai/summaries`, userEmail);
+}
+
+export function listAIInteractions(userEmail: string, projectId: number): Promise<AIInteraction[]> {
+  return request(`/api/projects/${projectId}/ai/interactions`, userEmail);
+}
+
+export interface AuditQuery {
+  actionType?: AuditActionType | "";
+  limit?: number;
+  offset?: number;
+}
+
+function auditParams(query: AuditQuery): string {
+  const params = new URLSearchParams();
+  if (query.actionType) params.set("action_type", query.actionType);
+  params.set("limit", String(query.limit ?? 50));
+  params.set("offset", String(query.offset ?? 0));
+  return params.toString();
+}
+
+export function listAuditEvents(userEmail: string, query: AuditQuery = {}): Promise<AuditEventPage> {
+  return request(`/api/audit/events?${auditParams(query)}`, userEmail);
+}
+
+export function listProjectAuditEvents(
+  userEmail: string,
+  projectId: number,
+  query: AuditQuery = {}
+): Promise<AuditEventPage> {
+  return request(`/api/projects/${projectId}/audit-events?${auditParams(query)}`, userEmail);
 }
 
 export function reviewSummary(

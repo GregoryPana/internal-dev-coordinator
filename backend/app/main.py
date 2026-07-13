@@ -8,6 +8,7 @@ docs/MVP_TASK_PLAN.md).
 from fastapi import FastAPI
 
 from app.ai.router import router as ai_router
+from app.audit.router import router as audit_router
 from app.config import settings
 from app.docs_matrix.router import router as docs_matrix_router
 from app.registry.router import router as registry_router
@@ -26,6 +27,7 @@ app.include_router(status_router)
 app.include_router(docs_matrix_router)
 app.include_router(starterpack_router)
 app.include_router(ai_router)
+app.include_router(audit_router)
 
 
 @app.get("/api/health")

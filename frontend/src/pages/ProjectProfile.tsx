@@ -123,6 +123,12 @@ export function ProjectProfile() {
         actions={
           <>
             <Link
+              to={`/projects/${project.id}/audit`}
+              className="rounded-md border border-border bg-surface px-3 py-1.5 text-sm font-medium text-text hover:bg-surface-muted"
+            >
+              Audit trail
+            </Link>
+            <Link
               to={`/projects/${project.id}/ai-summary`}
               className="rounded-md border border-border bg-surface px-3 py-1.5 text-sm font-medium text-text hover:bg-surface-muted"
             >

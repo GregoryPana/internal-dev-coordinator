@@ -271,3 +271,30 @@ def test_generate_summary_for_missing_project_is_404(client: TestClient, db: Ses
         headers=_headers(admin.email),
     )
     assert resp.status_code == 404
+
+
+def test_list_all_ai_interactions_for_project(
+    client: TestClient, db: Session, make_person, monkeypatch
+) -> None:
+    admin = make_person(Role.ADMIN)
+    outsider = make_person(Role.DEVELOPER_PROJECT_OWNER)
+    db.commit()
+    project = _create_project(client, admin.email)
+    _enable_fake_provider(monkeypatch)
+
+    created = client.post(
+        f"/api/projects/{project['id']}/ai/summary",
+        json={"audience": "developer"},
+        headers=_headers(admin.email),
+    ).json()
+
+    resp = client.get(f"/api/projects/{project['id']}/ai/interactions", headers=_headers(admin.email))
+    assert resp.status_code == 200
+    interactions = resp.json()
+    assert [i["id"] for i in interactions] == [created["id"]]
+    assert interactions[0]["task_type"] == "project_summary"
+
+    denied = client.get(
+        f"/api/projects/{project['id']}/ai/interactions", headers=_headers(outsider.email)
+    )
+    assert denied.status_code == 403

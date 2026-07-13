@@ -41,6 +41,16 @@ export function AppShell() {
               >
                 Portfolio
               </NavLink>
+              <NavLink
+                to="/audit"
+                className={({ isActive }) =>
+                  `rounded-md px-3 py-1.5 text-sm font-medium ${
+                    isActive ? "bg-primary/10 text-primary" : "text-muted-text hover:text-text"
+                  }`
+                }
+              >
+                Audit
+              </NavLink>
             </nav>
           </div>
           <form

@@ -82,6 +82,25 @@ def list_summaries(
     return [AIInteractionRead.model_validate(i) for i in db.scalars(stmt)]
 
 
+@router.get("/interactions", response_model=list[AIInteractionRead])
+def list_interactions(
+    project_id: int,
+    db: Session = Depends(get_db),
+    user: Person = Depends(authz.get_current_user),
+) -> list[AIInteractionRead]:
+    """Every AI run against this project, all task types (FR-022: every AI
+    interaction is logged and visible, not just project summaries)."""
+    project = _get_project_or_404(db, project_id)
+    authz.require_read(db, user, project)
+
+    stmt = (
+        select(AIInteraction)
+        .where(AIInteraction.project_id == project_id)
+        .order_by(AIInteraction.created_at.desc())
+    )
+    return [AIInteractionRead.model_validate(i) for i in db.scalars(stmt)]
+
+
 @router.post("/summaries/{interaction_id}/review", response_model=AIInteractionRead)
 def review(
     project_id: int,

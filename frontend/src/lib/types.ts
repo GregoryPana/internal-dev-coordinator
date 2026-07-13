@@ -2,6 +2,8 @@ import type {
   AIAudience,
   ArtifactStatus,
   ArtifactType,
+  AuditActionType,
+  AuditObjectType,
   Classification,
   HumanReviewStatus,
   Priority,
@@ -170,6 +172,26 @@ export interface AIInteraction {
   validation_status: ValidationStatus;
   human_review_status: HumanReviewStatus;
   created_at: string;
+}
+
+export interface AuditEvent {
+  id: number;
+  actor_id: number | null;
+  actor_name: string | null;
+  actor_email: string | null;
+  project_id: number | null;
+  action_type: AuditActionType;
+  object_type: AuditObjectType;
+  object_id: number | null;
+  metadata_json: Record<string, unknown> | null;
+  created_at: string;
+}
+
+export interface AuditEventPage {
+  items: AuditEvent[];
+  total: number;
+  limit: number;
+  offset: number;
 }
 
 export type ProjectFormValues = Pick<

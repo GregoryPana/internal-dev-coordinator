@@ -93,3 +93,21 @@ def require_update(db: Session, user: Person, project: Project) -> None:
 def require_create(user: Person) -> None:
     if not can_create_project(user):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No project-creation access.")
+
+
+# Portfolio-wide audit feed is oversight tooling: admin and auditor only.
+# Project-scoped audit history reuses can_read_project (members see their
+# own project's trail).
+_AUDIT_PORTFOLIO_ROLES = {Role.ADMIN, Role.AUDITOR}
+
+
+def can_read_audit_portfolio(user: Person) -> bool:
+    return user.role_type in _AUDIT_PORTFOLIO_ROLES
+
+
+def require_audit_portfolio_read(user: Person) -> None:
+    if not can_read_audit_portfolio(user):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Portfolio-wide audit access requires admin or auditor role.",
+        )
