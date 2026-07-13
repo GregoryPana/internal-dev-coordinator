@@ -7,7 +7,8 @@ services:
       POSTGRES_PASSWORD: idc
       POSTGRES_DB: idc
     ports:
-      - "5432:5432"
+      # Dedicated host port - 5432 is used by other projects on this machine.
+      - "5455:5432"
     volumes:
       - idc_pgdata:/var/lib/postgresql/data
     healthcheck:

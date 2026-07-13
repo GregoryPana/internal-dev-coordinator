@@ -6,8 +6,7 @@ from sqlalchemy import engine_from_config, pool
 from app.config import settings
 from app.db import Base
 
-# Import model modules here as they land (T2+) so autogenerate sees them,
-# e.g.:  import app.models_registry  # noqa: F401
+import app.models_registry  # noqa: F401  (imports all model modules)
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.database_url)

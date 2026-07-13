@@ -17,6 +17,7 @@ Every task records here what was verified, how, and by whom before it is called 
 | Task | Date | Verified by | Evidence |
 |---|---|---|---|
 | T1 Starter repo | 2026-07-13 | Claude (Fable 5) | Skeleton created; git history clean; no dependencies installed yet — build/run verification lands with T2. |
+| T2 Migrations + authz + audit | 2026-07-13 | Claude (Fable 5) | Fresh Docker Postgres (port 5455) + `alembic upgrade head` clean (2 migrations); `pytest` 9/9 passed (authz role matrix, audit append-only contract, health); e2e: dev auth resolved bootstrap admin from live DB and appended audit event id 1. Env-var leak from other projects fixed via `IDC_` prefix. |
 
 ## Phase gates
 

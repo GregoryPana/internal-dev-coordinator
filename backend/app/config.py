@@ -4,16 +4,21 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    # IDC_ prefix namespaces all env vars: other projects on this machine
+    # export bare DATABASE_URL etc., which must never leak into this app.
+    model_config = SettingsConfigDict(
+        env_file=".env", env_file_encoding="utf-8", env_prefix="IDC_", extra="ignore"
+    )
 
     app_name: str = "internal-dev-coordinator"
     environment: str = "local"  # local | staging | production
 
-    database_url: str = "postgresql+psycopg://idc:idc@localhost:5432/idc"
+    database_url: str = "postgresql+psycopg://idc:idc@localhost:5455/idc"
 
     # Dev auth is a login stub ONLY; permission checks are real from day one.
     # The moment a second user logs in, Entra/OIDC becomes mandatory.
     auth_mode: str = "dev"  # dev | entra
+    dev_default_user_email: str = "gregory.panagary@cwseychelles.com"
 
     # Freshness threshold in days (FR-023 / status-freshness metric).
     freshness_threshold_days: int = 14
