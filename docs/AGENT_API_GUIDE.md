@@ -21,7 +21,11 @@ Authentication (dev mode): send the account's email on every request:
 X-User-Email: hermes@cws.local
 ```
 
-Base URL: `http://localhost:8000`. Full machine-readable schema:
+Base URL: `http://localhost:8000`. **If the API is unreachable
+(connection refused), the dev stack is simply not running** - it is a
+local dev process, not an always-on service. Bring it up with
+`powershell -ExecutionPolicy Bypass -File scripts\dev-up.ps1` (idempotent)
+or flag it to Gregory, then retry. Full machine-readable schema:
 `GET /api/openapi.json` (no auth needed) - ideal as the agent's tool spec.
 
 > Dev auth trusts this header, which is acceptable only on the single-user
