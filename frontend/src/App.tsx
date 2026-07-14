@@ -3,6 +3,7 @@ import { AppShell } from "./components/AppShell";
 import { AISummaryPage } from "./pages/AISummaryPage";
 import { AuditTrailPage } from "./pages/AuditTrailPage";
 import { PortfolioDashboard } from "./pages/PortfolioDashboard";
+import { SettingsPage } from "./pages/SettingsPage";
 import { ProjectFormPage } from "./pages/ProjectFormPage";
 import { ProjectProfile } from "./pages/ProjectProfile";
 import { StarterPackPage } from "./pages/StarterPackPage";
@@ -21,6 +22,7 @@ export default function App() {
         <Route path="/projects/:id/ai-summary" element={<AISummaryPage />} />
         <Route path="/projects/:id/audit" element={<AuditTrailPage />} />
         <Route path="/audit" element={<AuditTrailPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Route>
     </Routes>
   );

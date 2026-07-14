@@ -141,6 +141,7 @@ class AuditActionType(StrEnum):
     SEED_IMPORT_RUN = "seed_import_run"
     MEMBER_ADDED = "member_added"
     MEMBER_REMOVED = "member_removed"
+    INTEGRATION_UPDATED = "integration_updated"
 
 
 class AuditObjectType(StrEnum):
@@ -151,6 +152,7 @@ class AuditObjectType(StrEnum):
     AI_INTERACTION = "ai_interaction"
     PROJECT_MEMBER = "project_member"
     JOB = "job"
+    INTEGRATION = "integration"
 
 
 # Required documentation profiles: project_type -> set of required artifact types.

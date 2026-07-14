@@ -25,6 +25,9 @@ def _disabled_ai_provider_by_default(monkeypatch):
     # Same isolation for the Phase 4 GitHub read integration.
     monkeypatch.setattr(settings, "github_provider", "disabled")
     monkeypatch.setattr(settings, "github_token", "")
+    # No background poller and no developer-local secret key during tests.
+    monkeypatch.setattr(settings, "enable_background_polling", False)
+    monkeypatch.setattr(settings, "secret_key", "")
 
 
 @pytest.fixture()

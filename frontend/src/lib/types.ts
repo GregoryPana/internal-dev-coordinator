@@ -239,6 +239,23 @@ export type ProjectFormValues = Pick<
   | "uses_ai"
 >;
 
+export interface GitHubIntegrationStatus {
+  provider: "github";
+  enabled: boolean;
+  source: "app" | "env";
+  credential_set: boolean;
+  api_base: string;
+  updated_at: string | null;
+  secret_key_configured: boolean;
+}
+
+export interface IntegrationTestResult {
+  ok: boolean;
+  detail: string;
+  authenticated?: boolean;
+  rate_limit_remaining?: number | null;
+}
+
 export interface AppConfig {
   status: string;
   app: string;

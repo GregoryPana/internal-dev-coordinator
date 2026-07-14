@@ -104,6 +104,11 @@ def test_endpoint_204_when_no_github_repo_url(client: TestClient, db: Session, m
 
 
 def test_endpoint_501_when_disabled(client: TestClient, db: Session, make_person) -> None:
+    # Clear any committed in-app integration row inside this test's
+    # transaction (rolled back afterwards) so env-fallback "disabled" applies.
+    from app.integrations.models import IntegrationSetting
+
+    db.query(IntegrationSetting).delete()
     admin = make_person(Role.ADMIN)
     db.commit()
     project = _create_project(client, admin.email, repo_url="https://github.com/cws/network-check")
@@ -120,7 +125,7 @@ def test_endpoint_returns_signals_with_provider(
     project = _create_project(client, admin.email, repo_url="https://github.com/cws/network-check")
 
     monkeypatch.setattr(settings, "github_provider", "github")
-    monkeypatch.setattr("app.repo.router.get_repo_provider", lambda: FakeRepoProvider())
+    monkeypatch.setattr("app.repo.service.get_repo_provider", lambda db=None: FakeRepoProvider())
 
     resp = client.get(f"/api/projects/{project['id']}/repo-signals", headers=_headers(admin.email))
     assert resp.status_code == 200
@@ -144,7 +149,7 @@ def test_endpoint_502_when_github_unreachable(
 
     monkeypatch.setattr(settings, "github_provider", "github")
     monkeypatch.setattr(
-        "app.repo.router.get_repo_provider", lambda: FakeRepoProvider(raise_unavailable=True)
+        "app.repo.service.get_repo_provider", lambda db=None: FakeRepoProvider(raise_unavailable=True)
     )
 
     resp = client.get(f"/api/projects/{project['id']}/repo-signals", headers=_headers(admin.email))

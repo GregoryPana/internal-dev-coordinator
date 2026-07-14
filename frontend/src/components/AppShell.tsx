@@ -51,6 +51,16 @@ export function AppShell() {
               >
                 Audit
               </NavLink>
+              <NavLink
+                to="/settings"
+                className={({ isActive }) =>
+                  `rounded-md px-3 py-1.5 text-sm font-medium ${
+                    isActive ? "bg-primary/10 text-primary" : "text-muted-text hover:text-text"
+                  }`
+                }
+              >
+                Settings
+              </NavLink>
             </nav>
           </div>
           <form

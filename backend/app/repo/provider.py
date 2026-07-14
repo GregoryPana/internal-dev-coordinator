@@ -124,7 +124,21 @@ class GitHubRepoProvider:
         )
 
 
-def get_repo_provider() -> RepoSignalsProvider:
+def get_repo_provider(db=None) -> RepoSignalsProvider:
+    """Resolve the provider from in-app integration settings (DB row wins)
+    with env-var fallback. Pass a Session to honor in-app settings; without
+    one, only env config is consulted (kept for compatibility)."""
+    if db is not None:
+        from app.integrations import service as integrations_service
+
+        config = integrations_service.resolve_github(db)
+        if config.enabled:
+            return GitHubRepoProvider(api_base=config.api_base, token=config.token)
+        # An explicit in-app row overrides env entirely; env only applies
+        # when no row exists (resolve_github already encodes that).
+        if config.source == "app":
+            return DisabledRepoProvider()
+
     if settings.github_provider == "disabled":
         return DisabledRepoProvider()
     if settings.github_provider == "github":

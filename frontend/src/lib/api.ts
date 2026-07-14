@@ -3,6 +3,8 @@ import type {
   AIInteraction,
   AppConfig,
   AuditEventPage,
+  GitHubIntegrationStatus,
+  IntegrationTestResult,
   DocArtifactUpsertPayload,
   DocMatrixEntry,
   IntakeFormValues,
@@ -184,6 +186,26 @@ export async function getRepoSignals(
     throw new ApiError(resp.status, body.detail || `Request failed (${resp.status})`);
   }
   return resp.json() as Promise<RepoSignals>;
+}
+
+export function getIntegrations(
+  userEmail: string
+): Promise<{ github: GitHubIntegrationStatus }> {
+  return request("/api/integrations", userEmail);
+}
+
+export function updateGitHubIntegration(
+  userEmail: string,
+  data: { enabled: boolean; token?: string | null }
+): Promise<{ github: GitHubIntegrationStatus }> {
+  return request("/api/integrations/github", userEmail, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+export function testGitHubIntegration(userEmail: string): Promise<IntegrationTestResult> {
+  return request("/api/integrations/github/test", userEmail, { method: "POST" });
 }
 
 export interface AuditQuery {

@@ -18,6 +18,53 @@ Newest entries first. Each entry: task, date, agent, then notes.
 
 ---
 
+## Active repo tracking + in-app guided integration setup (2026-07-14, Claude Fable 5)
+
+Gregory deferred authentication (frontend MSAL) to productization time and
+said continue with other development - so this session built the approved
+active-tracking + guided-setup pair from the 2026-07-14 product direction.
+
+- **In-app integration settings** (`app/integrations`, migration
+  `b7e2d81c3fa4`): admin-only Settings page + API where GitHub repo
+  tracking is enabled/disabled and a PAT is stored **encrypted at rest**
+  (Fernet, key = new `IDC_SECRET_KEY`, generated into Gregory's
+  `backend/.env`). Credentials go in and never come back out - every
+  response/audit record only says *whether* one is set
+  (`credential_changed: true`, never the value). Saving a token without a
+  secret key configured is refused with instructions (400), not silently
+  stored weaker. In-app settings **override env vars** when a row exists;
+  env remains the fallback so nothing breaks for env-configured deploys.
+- **Guided setup UI** at `/settings`: states exactly what is needed
+  (fine-grained PAT), the exact GitHub click-path to create it, the exact
+  minimal permissions (Contents: read-only, Metadata: read-only, selected
+  repos only), a paste-to-store field, a **Test connection** button
+  (reports authenticated-or-not + rate-limit headroom), and status chips
+  (enabled/token-stored/configured-via). This is the template for the AI
+  provider card (placeholder note there for now).
+- **Active repo tracking**: `repo_snapshots` table + background poller
+  (asyncio loop in the FastAPI lifespan, every
+  `IDC_REPO_POLL_INTERVAL_MINUTES`=30, disabled in tests). Every fetch -
+  poller or profile view - persists a snapshot (success or failure);
+  profile views serve a fresh cached snapshot instead of hitting GitHub
+  every time. Live pass verified against the real portfolio: 7 repos
+  polled, 4 ok (incl. this coordinator and the billing platform), 3
+  cleanly-failed snapshots for the private repos (visible evidence of the
+  missing PAT rather than silence), 10 projects without repos skipped.
+- **Deliberate boundary:** snapshots do NOT touch `Project.data_as_of`.
+  Whether repo activity should feed freshness changes what "data as of"
+  means and stays an explicit pending decision for Gregory.
+- **Test-isolation lesson hit a third time (T6, then again now):** the
+  browser session committed a real `integration_settings` row and two
+  tests that assumed an empty table started failing. Fixed by deleting
+  rows *inside the test transaction* (rolled back afterwards). Any test
+  asserting absence of rows in this shared dev DB is fragile the moment
+  the feature gets real use.
+- 112/112 tests; migration cycle clean; `npm run build` clean;
+  Playwright-verified settings flow end to end (enable in-app -> saved ->
+  profile card lit up -> snapshot persisted -> audit event recorded).
+
+---
+
 ## PM fields, phase consolidation, edition gate, full register seed (2026-07-14, Claude Fable 5)
 
 Direct instructions from Gregory, all landed in one session:
