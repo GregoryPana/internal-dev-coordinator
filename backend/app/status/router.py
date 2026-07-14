@@ -42,7 +42,7 @@ def create_status_event(
     user: Person = Depends(authz.get_current_user),
 ) -> StatusEventRead:
     project = _get_project_or_404(db, project_id)
-    authz.require_update(db, user, project)
+    authz.require_evidence_write(db, user, project)
     event = status_service.create_status_event(db, project, user, data)
     audit_service.record(
         db,

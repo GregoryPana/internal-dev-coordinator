@@ -42,7 +42,7 @@ def upsert_documentation_artifact(
     user: Person = Depends(authz.get_current_user),
 ) -> DocumentationMatrixEntry:
     project = _get_project_or_404(db, project_id)
-    authz.require_update(db, user, project)
+    authz.require_evidence_write(db, user, project)
     artifact, created = docs_service.upsert_artifact(db, project, artifact_type, data)
     audit_service.record(
         db,

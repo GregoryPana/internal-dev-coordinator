@@ -18,6 +18,42 @@ Newest entries first. Each entry: task, date, agent, then notes.
 
 ---
 
+## Agent API access - Hermes can now read and write the register (2026-07-14, Claude Fable 5)
+
+Gregory: Hermes knows the projects and updates frequently, so it should be
+able to update the coordinator directly. Implemented as a first-class,
+bounded capability - not a bypass:
+
+- **New authz capability `can_write_evidence`**: exactly one role broader
+  than `can_update_project` - an `ai_service_account` MEMBER may record
+  evidence (status events, doc-artifact upserts, registry field updates)
+  because that is factual reporting. Status/doc/registry write routes now
+  use it. **Human-review gates are untouched**: starter-pack and AI-summary
+  review still require `can_update_project`, which excludes the role - an
+  agent can never approve AI output (FR-022), asserted by test and verified
+  live (403).
+- **Provisioning CLI** `python -m app.authz.provision_agent --email … --name …`:
+  idempotent; creates/refreshes the service account and adds membership on
+  every current project (audited as `member_added`). Re-run after creating
+  new projects.
+- **Hermes provisioned live**: `hermes@cws.local` (Person id 1583), member
+  of all 17 projects; sees the full portfolio through the API; every write
+  it makes is attributed to it in status-event authorship and the
+  append-only audit trail, exactly like a human.
+- **`docs/AGENT_API_GUIDE.md`** written to be pasted into Hermes' context:
+  auth, capability matrix (may/may-not table), endpoint catalogue, payload
+  examples with controlled-vocabulary values, and conventions - check
+  before posting (no API-level status-event dedupe), always cite the vault
+  source in `verification_notes`, report-don't-judge, PATCH only changed
+  fields, flag new projects to Gregory rather than trying to create them.
+- Caveat unchanged: dev-mode header auth is trust-based; at productization
+  the same account moves to real tokens (Entra client credentials) with
+  the identical permission model.
+- 116/116 tests (4 new: member agent full evidence-write path; non-member
+  403; review gates 403 even for members; provisioning idempotency).
+
+---
+
 ## Active repo tracking + in-app guided integration setup (2026-07-14, Claude Fable 5)
 
 Gregory deferred authentication (frontend MSAL) to productization time and

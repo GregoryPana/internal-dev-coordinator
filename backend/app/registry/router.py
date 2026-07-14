@@ -74,7 +74,7 @@ def update_project(
     user: Person = Depends(authz.get_current_user),
 ) -> ProjectRead:
     project = _get_project_or_404(db, project_id)
-    authz.require_update(db, user, project)
+    authz.require_evidence_write(db, user, project)
     changed_fields = sorted(data.model_dump(exclude_unset=True).keys())
     project = registry_service.update_project(db, project, data)
     audit_service.record(

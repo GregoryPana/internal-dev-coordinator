@@ -101,9 +101,30 @@ def require_read(db: Session, user: Person, project: Project) -> None:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No read access to this project.")
 
 
+def can_write_evidence(db: Session, user: Person, project: Project) -> bool:
+    """Evidence writes: status events, documentation-artifact upserts and
+    registry field updates. Broader than can_update_project by exactly one
+    role: an ai_service_account MEMBER (e.g. the Hermes vault agent) may
+    record evidence, because that is factual reporting - but it can never
+    pass a human-review gate (starter-pack/AI-summary review keep using
+    can_update_project, which excludes it - FR-022)."""
+    if can_update_project(db, user, project):
+        return True
+    if user.role_type == Role.AI_SERVICE_ACCOUNT:
+        return _is_member(db, user, project)
+    return False
+
+
 def require_update(db: Session, user: Person, project: Project) -> None:
     if not can_update_project(db, user, project):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No update access to this project.")
+
+
+def require_evidence_write(db: Session, user: Person, project: Project) -> None:
+    if not can_write_evidence(db, user, project):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="No evidence-write access to this project."
+        )
 
 
 def require_create(user: Person) -> None:
