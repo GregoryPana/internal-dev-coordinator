@@ -15,13 +15,20 @@ class GenerateSummaryRequest(BaseModel):
 class SummaryOutput(BaseModel):
     """The structured schema the model must return (architecture spec 11.4).
     Validated strictly - anything that doesn't parse into this shape is a
-    failed_schema run, not a best-effort guess at what the model meant."""
+    failed_schema run, not a best-effort guess at what the model meant.
+    Tightened 2026-07-14 per Gregory's T10 evaluation findings:
+    requires_human_review must be literally true (the prompt demands it, so
+    the schema now enforces it) and unexpected keys are rejected."""
+
+    model_config = ConfigDict(extra="forbid")
 
     summary: str = Field(min_length=1)
     assumptions: list[str] = Field(default_factory=list)
     gaps: list[str] = Field(default_factory=list)
     recommended_next_actions: list[str] = Field(default_factory=list)
-    requires_human_review: bool
+    requires_human_review: Literal[True]
+    # Model self-reported and known to be UNCALIBRATED (T10 finding: 0.0 on
+    # the strongest output). Stored for analysis; not a reliability signal.
     confidence: float = Field(ge=0.0, le=1.0)
 
 

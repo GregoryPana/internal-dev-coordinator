@@ -1,0 +1,150 @@
+{
+  "cwscx-platform - developer": {
+    "project_slug": "cwscx-platform",
+    "audience": "developer",
+    "bundle_sha256": "6a57135e7860a35890271a8fc57bf2e9e8c0b802f47916470865ff628ae93bde",
+    "bundle_text": "Project: CWSCX Platform / Customer Experience Platform (cwscx-platform)\nType: internal-web-app | Classification: platform\nPhase: live | Status: active | Priority: high\nOwner: Gregory Panagary\nBusiness owner: CX/business/product stakeholders (Maria, Dan, David Bedier); not fully recorded in repo docs\nBusiness purpose: Give CWS internal teams a single platform to capture, review and report on customer-experience data across B2B, Installation Assessment and public Mystery Shopper programmes.\nDescription: Live customer-experience platform for survey capture, review, analytics, reporting and administration across B2B, Installation Assessment and Mystery Shopper programmes.\nCurrent next action: Complete Mystery Shopper public DMZ smoke/sign-off (enroll -> TOTP/login -> DMZ survey submit -> internal review queue); keep live CX production changes branch/PR-controlled.\nTech stack summary: FastAPI backend, React dashboard/survey frontend, PostgreSQL with migrations; reporting/email outputs.\nData as of: 2026-07-13T00:00:00+00:00\nStale (>14 days old or no evidence): False\n\nRecent status events (newest first, max 5):\n- [16] 2026-07-13 by Gregory Panagary: Mystery Shopper public 2FA/DMZ production launch is live (DMZ-to-internal PostgreSQL connectivity verified); end-to-end smoke/sign-off still pending. B2B CSAT threshold/report explanation update remains local/uncommitted until selectively committed, built, tested and deployed.\n  completed_work: Mystery Shopper public DMZ production launch; DMZ-to-internal PostgreSQL connectivity verified.\n  next_actions: Complete Mystery Shopper DMZ smoke/sign-off; keep production changes branch/PR-controlled; remove old Installation Assessment testing data for Bedier while preserving live records.\n  blockers: none\n\nRequired documentation status:\n- user_guide: missing (GAP - missing)\n- admin_guide: missing (GAP - missing)\n- developer_guide: missing (GAP - missing)\n- agent_guide: current\n- support_runbook: current\n- deployment_guide: current\n- verification_matrix: missing (GAP - missing)\n- exit_md: current\n",
+    "expected_facts": [
+      [
+        "mystery shopper",
+        "dmz",
+        "smoke"
+      ]
+    ],
+    "prohibited_patterns": [
+      "(exit[\\s_]*(guide|doc\\w*|md)|exit\\.md)[^.]{0,40}(missing|absent|lack)",
+      "(missing|lack\\w*|absent)[^.]{0,50}exit[\\s_]*(guide|doc\\w*|md)"
+    ],
+    "frozen_at": "2026-07-14T06:35:41.350502+00:00"
+  },
+  "cwscx-platform - manager": {
+    "project_slug": "cwscx-platform",
+    "audience": "manager",
+    "bundle_sha256": "6a57135e7860a35890271a8fc57bf2e9e8c0b802f47916470865ff628ae93bde",
+    "bundle_text": "Project: CWSCX Platform / Customer Experience Platform (cwscx-platform)\nType: internal-web-app | Classification: platform\nPhase: live | Status: active | Priority: high\nOwner: Gregory Panagary\nBusiness owner: CX/business/product stakeholders (Maria, Dan, David Bedier); not fully recorded in repo docs\nBusiness purpose: Give CWS internal teams a single platform to capture, review and report on customer-experience data across B2B, Installation Assessment and public Mystery Shopper programmes.\nDescription: Live customer-experience platform for survey capture, review, analytics, reporting and administration across B2B, Installation Assessment and Mystery Shopper programmes.\nCurrent next action: Complete Mystery Shopper public DMZ smoke/sign-off (enroll -> TOTP/login -> DMZ survey submit -> internal review queue); keep live CX production changes branch/PR-controlled.\nTech stack summary: FastAPI backend, React dashboard/survey frontend, PostgreSQL with migrations; reporting/email outputs.\nData as of: 2026-07-13T00:00:00+00:00\nStale (>14 days old or no evidence): False\n\nRecent status events (newest first, max 5):\n- [16] 2026-07-13 by Gregory Panagary: Mystery Shopper public 2FA/DMZ production launch is live (DMZ-to-internal PostgreSQL connectivity verified); end-to-end smoke/sign-off still pending. B2B CSAT threshold/report explanation update remains local/uncommitted until selectively committed, built, tested and deployed.\n  completed_work: Mystery Shopper public DMZ production launch; DMZ-to-internal PostgreSQL connectivity verified.\n  next_actions: Complete Mystery Shopper DMZ smoke/sign-off; keep production changes branch/PR-controlled; remove old Installation Assessment testing data for Bedier while preserving live records.\n  blockers: none\n\nRequired documentation status:\n- user_guide: missing (GAP - missing)\n- admin_guide: missing (GAP - missing)\n- developer_guide: missing (GAP - missing)\n- agent_guide: current\n- support_runbook: current\n- deployment_guide: current\n- verification_matrix: missing (GAP - missing)\n- exit_md: current\n",
+    "expected_facts": [],
+    "prohibited_patterns": [
+      "(exit[\\s_]*(guide|doc\\w*|md)|exit\\.md)[^.]{0,40}(missing|absent|lack)",
+      "(missing|lack\\w*|absent)[^.]{0,50}exit[\\s_]*(guide|doc\\w*|md)",
+      "\\bdevops\\b",
+      "escalat\\w*[^.]{0,40}accountability"
+    ],
+    "frozen_at": "2026-07-14T06:37:05.021942+00:00"
+  },
+  "cws-pulse-awards - developer": {
+    "project_slug": "cws-pulse-awards",
+    "audience": "developer",
+    "bundle_sha256": "ed17d044b4d576065ff7e4efc991f51bdc40a98221010c2b9c680bcac98f825f",
+    "bundle_text": "Project: CWS Pulse Awards / Digital Recognition Platform (cws-pulse-awards)\nType: internal-web-app | Classification: reusable\nPhase: ongoing-development | Status: active | Priority: medium\nOwner: Gregory Panagary\nBusiness owner: Maria Pouponneau / CCCO (P&C); CEO/Naadir dependency for Golden Ticket\nBusiness purpose: Support the CWS Pulse Awards recognition programme with controlled entry of approved winners and internal display of recognition outcomes.\nDescription: Internal staff recognition platform and styled email workflow: admin award entry, recipient management, email preview/send, and a Digital Hall of Fame.\nCurrent next action: Complete local browser flow test with dev auth (add recipient, enter winner, preview/send email); verify GitHub push/PR discipline; validate SMTP relay; confirm Maria/P&C final MVP acceptance and deployment route.\nTech stack summary: FastAPI-style backend, React/Vite/Tailwind frontend; local dev-auth bypass for MVP testing, Entra/admin validation planned for production.\nData as of: 2026-07-13T00:00:00+00:00\nStale (>14 days old or no evidence): False\n\nRecent status events (newest first, max 5):\n- [17] 2026-07-13 by Gregory Panagary: MVP admin cockpit (/admin/entry) supports entry, preview, send and recipient management on a local dev-auth baseline; targeted backend/frontend builds passing. EXIT.md confirms Phase 0 baseline verified locally - not yet production-ready or handed over.\n  completed_work: Admin email recipient management and local dev-auth baseline added.\n  next_actions: Complete local browser flow test with dev auth; verify GitHub push/PR discipline; validate SMTP relay and production email output; confirm Maria/P&C MVP acceptance and deployment route.\n  blockers: Awaiting Maria/P&C final MVP acceptance and deployment route decision; SMTP/Entra production auth not yet configured.\n\nRequired documentation status:\n- user_guide: missing (GAP - missing)\n- admin_guide: missing (GAP - missing)\n- developer_guide: missing (GAP - missing)\n- agent_guide: current\n- support_runbook: current\n- deployment_guide: current\n- verification_matrix: missing (GAP - missing)\n- exit_md: current\n",
+    "expected_facts": [
+      [
+        "smtp",
+        "entra"
+      ],
+      [
+        "maria",
+        "p&c",
+        "acceptance"
+      ]
+    ],
+    "prohibited_patterns": [
+      "\\bdevops\\b",
+      "escalat\\w*[^.]{0,40}accountability"
+    ],
+    "frozen_at": "2026-07-14T06:38:17.512464+00:00"
+  },
+  "cws-pulse-awards - manager": {
+    "project_slug": "cws-pulse-awards",
+    "audience": "manager",
+    "bundle_sha256": "ed17d044b4d576065ff7e4efc991f51bdc40a98221010c2b9c680bcac98f825f",
+    "bundle_text": "Project: CWS Pulse Awards / Digital Recognition Platform (cws-pulse-awards)\nType: internal-web-app | Classification: reusable\nPhase: ongoing-development | Status: active | Priority: medium\nOwner: Gregory Panagary\nBusiness owner: Maria Pouponneau / CCCO (P&C); CEO/Naadir dependency for Golden Ticket\nBusiness purpose: Support the CWS Pulse Awards recognition programme with controlled entry of approved winners and internal display of recognition outcomes.\nDescription: Internal staff recognition platform and styled email workflow: admin award entry, recipient management, email preview/send, and a Digital Hall of Fame.\nCurrent next action: Complete local browser flow test with dev auth (add recipient, enter winner, preview/send email); verify GitHub push/PR discipline; validate SMTP relay; confirm Maria/P&C final MVP acceptance and deployment route.\nTech stack summary: FastAPI-style backend, React/Vite/Tailwind frontend; local dev-auth bypass for MVP testing, Entra/admin validation planned for production.\nData as of: 2026-07-13T00:00:00+00:00\nStale (>14 days old or no evidence): False\n\nRecent status events (newest first, max 5):\n- [17] 2026-07-13 by Gregory Panagary: MVP admin cockpit (/admin/entry) supports entry, preview, send and recipient management on a local dev-auth baseline; targeted backend/frontend builds passing. EXIT.md confirms Phase 0 baseline verified locally - not yet production-ready or handed over.\n  completed_work: Admin email recipient management and local dev-auth baseline added.\n  next_actions: Complete local browser flow test with dev auth; verify GitHub push/PR discipline; validate SMTP relay and production email output; confirm Maria/P&C MVP acceptance and deployment route.\n  blockers: Awaiting Maria/P&C final MVP acceptance and deployment route decision; SMTP/Entra production auth not yet configured.\n\nRequired documentation status:\n- user_guide: missing (GAP - missing)\n- admin_guide: missing (GAP - missing)\n- developer_guide: missing (GAP - missing)\n- agent_guide: current\n- support_runbook: current\n- deployment_guide: current\n- verification_matrix: missing (GAP - missing)\n- exit_md: current\n",
+    "expected_facts": [],
+    "prohibited_patterns": [
+      "\\bdevops\\b",
+      "escalat\\w*[^.]{0,40}accountability",
+      "ceo[^.]{0,60}(final|overall|project)\\s*(approval|acceptance)"
+    ],
+    "frozen_at": "2026-07-14T06:39:57.468591+00:00"
+  },
+  "vas-network-check - developer": {
+    "project_slug": "vas-network-check",
+    "audience": "developer",
+    "bundle_sha256": "364fd83ce1c12fbf0202a48b61a1b3e99efc34b7c3b364c514402ec0647929a2",
+    "bundle_text": "Project: VAS Network Check / System Check Platform (vas-network-check)\nType: operational-tool | Classification: reusable\nPhase: live | Status: active | Priority: medium\nOwner: Gregory Panagary\nBusiness owner: IS/VAS/Network stakeholders (named process owner unconfirmed)\nBusiness purpose: Give IS/VAS/network operations a self-service way to run server checks and receive branded, actionable report emails without manual log review.\nDescription: Runs checks against VAS-related Linux servers, parses ss_system_monitor output, generates Excel/CSV reports and sends styled email results via internal SMTP relay.\nCurrent next action: Monitor SMSC authentication/source-policy behavior if failures recur; complete formal handover/EXIT evidence once operational ownership is confirmed.\nTech stack summary: React trigger frontend, FastAPI backend, Node.js check/workbook generator, MJML/Jinja2 styled email via internal SMTP relay.\nData as of: 2026-07-13T00:00:00+00:00\nStale (>14 days old or no evidence): False\n\nRecent status events (newest first, max 5):\n- [18] 2026-07-13 by Gregory Panagary: Fully deployed on VM and in active use; styled MJML/Jinja2 email is the fixed branded default, workbook attachment/download links verified, and a real SSH login diagnostic isolated a recent SMSC failure to authentication rejection rather than connectivity/code drift.\n  completed_work: VM deployment; styled email default; workbook attachment/download verification; SSH login diagnostic.\n  next_actions: Monitor SMSC auth/source-policy behavior if failures recur; consider clearer UI/backend errors for missing styled-email assets or workbook; complete formal handover/EXIT evidence once ownership confirmed.\n  blockers: none\n\nRequired documentation status:\n- developer_guide: missing (GAP - missing)\n- agent_guide: current\n- support_runbook: missing (GAP - missing)\n- deployment_guide: current\n- verification_matrix: missing (GAP - missing)\n- exit_md: missing (GAP - missing)\n",
+    "expected_facts": [
+      [
+        "diagnos",
+        "isolat",
+        "identif"
+      ],
+      [
+        "handover",
+        "ownership"
+      ]
+    ],
+    "prohibited_patterns": [
+      "resolv\\w*[^.]{0,60}(smsc|auth)",
+      "(smsc|auth\\w*)[^.]{0,60}(was|were|been|are|is)\\s+(resolved|fixed)",
+      "fix\\w*\\s+(have\\s+)?resolved[^.]{0,40}auth"
+    ],
+    "frozen_at": "2026-07-14T06:40:59.333217+00:00"
+  },
+  "vas-network-check - manager": {
+    "project_slug": "vas-network-check",
+    "audience": "manager",
+    "bundle_sha256": "364fd83ce1c12fbf0202a48b61a1b3e99efc34b7c3b364c514402ec0647929a2",
+    "bundle_text": "Project: VAS Network Check / System Check Platform (vas-network-check)\nType: operational-tool | Classification: reusable\nPhase: live | Status: active | Priority: medium\nOwner: Gregory Panagary\nBusiness owner: IS/VAS/Network stakeholders (named process owner unconfirmed)\nBusiness purpose: Give IS/VAS/network operations a self-service way to run server checks and receive branded, actionable report emails without manual log review.\nDescription: Runs checks against VAS-related Linux servers, parses ss_system_monitor output, generates Excel/CSV reports and sends styled email results via internal SMTP relay.\nCurrent next action: Monitor SMSC authentication/source-policy behavior if failures recur; complete formal handover/EXIT evidence once operational ownership is confirmed.\nTech stack summary: React trigger frontend, FastAPI backend, Node.js check/workbook generator, MJML/Jinja2 styled email via internal SMTP relay.\nData as of: 2026-07-13T00:00:00+00:00\nStale (>14 days old or no evidence): False\n\nRecent status events (newest first, max 5):\n- [18] 2026-07-13 by Gregory Panagary: Fully deployed on VM and in active use; styled MJML/Jinja2 email is the fixed branded default, workbook attachment/download links verified, and a real SSH login diagnostic isolated a recent SMSC failure to authentication rejection rather than connectivity/code drift.\n  completed_work: VM deployment; styled email default; workbook attachment/download verification; SSH login diagnostic.\n  next_actions: Monitor SMSC auth/source-policy behavior if failures recur; consider clearer UI/backend errors for missing styled-email assets or workbook; complete formal handover/EXIT evidence once ownership confirmed.\n  blockers: none\n\nRequired documentation status:\n- developer_guide: missing (GAP - missing)\n- agent_guide: current\n- support_runbook: missing (GAP - missing)\n- deployment_guide: current\n- verification_matrix: missing (GAP - missing)\n- exit_md: missing (GAP - missing)\n",
+    "expected_facts": [
+      [
+        "handover",
+        "ownership"
+      ]
+    ],
+    "prohibited_patterns": [
+      "resolv\\w*[^.]{0,60}(smsc|auth)",
+      "(smsc|auth\\w*)[^.]{0,60}(was|were|been|are|is)\\s+(resolved|fixed)",
+      "fix\\w*\\s+(have\\s+)?resolved[^.]{0,40}auth"
+    ],
+    "frozen_at": "2026-07-14T06:42:16.013852+00:00"
+  },
+  "health-fair-2026 - developer": {
+    "project_slug": "health-fair-2026",
+    "audience": "developer",
+    "bundle_sha256": "304a5a9b2e043fea8abc030846a7a82944dfc88d33ece41556cdf673156e34d9",
+    "bundle_text": "Project: Health Fair 2026 Digital Platform (health-fair-2026)\nType: internal-web-app | Classification: one-off\nPhase: ongoing-development | Status: blocked | Priority: high\nOwner: Gregory Panagary\nBusiness owner: OHSE / Andrya Louise\nBusiness purpose: Give OHSE and health-fair partner stalls a fast, anonymous way to capture participant results and provide instant advice, with aggregate reporting instead of manual paper tracking.\nDescription: One-day anonymous digital platform for Health Fair 2026: staff move through partner stalls, self-enter broad result categories, and receive optional advice with aggregate anonymous analytics for OHSE/admin.\nCurrent next action: Confirm final OHSE metric/result/advice content (do not hard-code draft slide content); confirm Entra app registration/admin role details and implement backend authorization; confirm hosting/network/DMZ approach before deployment.\nTech stack summary: CWS internal SaaS pattern per Internal Dev Kit standards; FastAPI backend, React frontend, Alembic migrations.\nData as of: 2026-07-13T00:00:00+00:00\nStale (>14 days old or no evidence): False\n\nRecent status events (newest first, max 5):\n- [19] 2026-07-13 by Gregory Panagary: 2026-07-13 stakeholder realignment captured; a configurable-content slice was implemented locally covering metric types, stall/partner setup, pillar/zone reporting categories, result-option metadata, advice cards, content APIs and an admin configuration workspace. Backend ruff, pytest (23 passed), Alembic SQL generation, frontend lint and frontend build all reported passing. Final content/auth/deployment work remains blocked.\n  completed_work: Configurable metric/stall/partner/reporting-category system; admin configuration workspace; content APIs.\n  next_actions: Confirm final OHSE metric/result/advice content; implement previous-submission idempotency checks; polish admin forms; decide participant advice timing UX; confirm Entra app/admin roles and backend authorization; confirm hosting/network/DMZ approach; run event Wi-Fi route test before QR printing.\n  blockers: Final OHSE metric/result/advice content not confirmed; Entra backend/admin authorization not implemented; event network/DMZ path not confirmed; very short testing deadline (2026-07-31) ahead of the 2026-08-07 event.\n\nRequired documentation status:\n- user_guide: missing (GAP - missing)\n- admin_guide: missing (GAP - missing)\n- developer_guide: missing (GAP - missing)\n- agent_guide: current\n- support_runbook: missing (GAP - missing)\n- deployment_guide: draft\n- verification_matrix: missing (GAP - missing)\n- exit_md: draft\n",
+    "expected_facts": [
+      [
+        "2026-07-31",
+        "2026-08-07",
+        "july 31",
+        "august 7"
+      ],
+      [
+        "ohse"
+      ]
+    ],
+    "prohibited_patterns": [
+      "(likely|probably)[^.]{0,60}(implemented|part of the backend)"
+    ],
+    "frozen_at": "2026-07-14T06:43:41.364945+00:00"
+  },
+  "health-fair-2026 - manager": {
+    "project_slug": "health-fair-2026",
+    "audience": "manager",
+    "bundle_sha256": "304a5a9b2e043fea8abc030846a7a82944dfc88d33ece41556cdf673156e34d9",
+    "bundle_text": "Project: Health Fair 2026 Digital Platform (health-fair-2026)\nType: internal-web-app | Classification: one-off\nPhase: ongoing-development | Status: blocked | Priority: high\nOwner: Gregory Panagary\nBusiness owner: OHSE / Andrya Louise\nBusiness purpose: Give OHSE and health-fair partner stalls a fast, anonymous way to capture participant results and provide instant advice, with aggregate reporting instead of manual paper tracking.\nDescription: One-day anonymous digital platform for Health Fair 2026: staff move through partner stalls, self-enter broad result categories, and receive optional advice with aggregate anonymous analytics for OHSE/admin.\nCurrent next action: Confirm final OHSE metric/result/advice content (do not hard-code draft slide content); confirm Entra app registration/admin role details and implement backend authorization; confirm hosting/network/DMZ approach before deployment.\nTech stack summary: CWS internal SaaS pattern per Internal Dev Kit standards; FastAPI backend, React frontend, Alembic migrations.\nData as of: 2026-07-13T00:00:00+00:00\nStale (>14 days old or no evidence): False\n\nRecent status events (newest first, max 5):\n- [19] 2026-07-13 by Gregory Panagary: 2026-07-13 stakeholder realignment captured; a configurable-content slice was implemented locally covering metric types, stall/partner setup, pillar/zone reporting categories, result-option metadata, advice cards, content APIs and an admin configuration workspace. Backend ruff, pytest (23 passed), Alembic SQL generation, frontend lint and frontend build all reported passing. Final content/auth/deployment work remains blocked.\n  completed_work: Configurable metric/stall/partner/reporting-category system; admin configuration workspace; content APIs.\n  next_actions: Confirm final OHSE metric/result/advice content; implement previous-submission idempotency checks; polish admin forms; decide participant advice timing UX; confirm Entra app/admin roles and backend authorization; confirm hosting/network/DMZ approach; run event Wi-Fi route test before QR printing.\n  blockers: Final OHSE metric/result/advice content not confirmed; Entra backend/admin authorization not implemented; event network/DMZ path not confirmed; very short testing deadline (2026-07-31) ahead of the 2026-08-07 event.\n\nRequired documentation status:\n- user_guide: missing (GAP - missing)\n- admin_guide: missing (GAP - missing)\n- developer_guide: missing (GAP - missing)\n- agent_guide: current\n- support_runbook: missing (GAP - missing)\n- deployment_guide: draft\n- verification_matrix: missing (GAP - missing)\n- exit_md: draft\n",
+    "expected_facts": [
+      [
+        "2026-07-31",
+        "2026-08-07",
+        "july 31",
+        "august 7"
+      ]
+    ],
+    "prohibited_patterns": [
+      "\\bdevops\\b",
+      "escalat\\w*[^.]{0,40}accountability"
+    ],
+    "frozen_at": "2026-07-14T06:45:04.970941+00:00"
+  }
+}

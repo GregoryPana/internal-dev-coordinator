@@ -14,15 +14,14 @@ import {
 } from "../lib/vocab";
 import { useCurrentUser } from "../state/currentUser";
 
-function ConfidenceBar({ confidence }: { confidence: number }) {
-  const pct = Math.round(confidence * 100);
+/** T10 human evaluation (2026-07-14) found the model's confidence field
+ * uncalibrated (0.0 on the strongest output) - render as a muted footnote,
+ * never as a bar or reliability indicator. */
+function ConfidenceNote({ confidence }: { confidence: number }) {
   return (
-    <div className="flex items-center gap-2">
-      <div className="h-1.5 w-32 rounded-full bg-surface-muted">
-        <div className="h-1.5 rounded-full bg-primary" style={{ width: `${pct}%` }} />
-      </div>
-      <span className="text-xs text-muted-text">{pct}% confidence</span>
-    </div>
+    <p className="mt-1 text-xs text-muted-text">
+      Model self-reported confidence: {confidence} (uncalibrated — not a reliability indicator)
+    </p>
   );
 }
 
@@ -56,7 +55,7 @@ function SummaryCard({
       {output ? (
         <>
           <p className="text-sm text-text">{output.summary}</p>
-          <ConfidenceBar confidence={output.confidence} />
+          <ConfidenceNote confidence={output.confidence} />
 
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
             {output.gaps.length > 0 && (

@@ -28,7 +28,7 @@ from app.registry.service import is_stale as project_is_stale
 from app.vocab import AIAudience, AITaskType, ErrorCategory, HumanReviewStatus, ValidationStatus
 
 _PROMPTS_DIR = Path(__file__).parent / "prompts"
-_PROMPT_VERSION = 1
+_PROMPT_VERSION = 2  # v2 2026-07-14: grounding rules from Gregory's T10 evaluation
 _STALE_CAVEAT = (
     "This project's data_as_of is stale (older than the 14-day freshness threshold, or no "
     "status evidence exists yet) - treat this summary as potentially outdated."

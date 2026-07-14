@@ -2,6 +2,41 @@
 
 Generated 2026-07-13T18:25:28.666201+00:00 by `python -m app.ai.eval.run_golden_set`. See `docs/eval/RUBRIC.md` for scoring instructions. Gregory fills in the rubric tables below.
 
+
+---
+
+## Human rubric outcome (Gregory Panagary, 2026-07-14)
+
+**Strict result: 2/8 pass.** Developer summaries materially stronger than
+manager summaries (managers 0/4). Case verdicts below each case; full
+findings in the Hermes update pack.
+
+| # | Case | Verdict |
+|---|---|---|
+| 1 | cwscx-platform / developer | **PASS** (strong) |
+| 2 | cwscx-platform / manager | FAIL - claimed EXIT.md missing (it is current); invented "actively involved" stakeholders; unsupported "escalate for accountability" |
+| 3 | cws-pulse-awards / developer | **PASS** (strong) |
+| 4 | cws-pulse-awards / manager | FAIL - Golden Ticket CEO dependency distorted into broad final approval; invented "with DevOps"; over-strong "escalate" |
+| 5 | vas-network-check / developer | FAIL - "diagnosed" upgraded to "resolved" (SMSC auth); UI improvements overstated; confidence 0.0 miscalibrated |
+| 6 | vas-network-check / manager | FAIL - same diagnosed-vs-resolved error; duplicated developer_guide in gaps |
+| 7 | health-fair-2026 / developer | FAIL - unsupported assumptions (idempotency "likely in backend"; tests "sufficient"); omitted draft deployment guide; deadlines not surfaced |
+| 8 | health-fair-2026 / manager | FAIL (hard) - malformed output; schema rejection worked as designed |
+
+**Cross-cutting:** status-transition upgrades (diagnosed->resolved); invented
+organisational actions/assignments (DevOps, escalations, stakeholder
+activity); manager persona adds management-sounding conclusions absent from
+the bundle; 87.5% schema success too low for unattended use; confidence
+uncalibrated (0.0 on the strongest output) - not a reliability indicator.
+
+**Deployment posture (unchanged, now evidence-backed):** drafts only; human
+review mandatory; no auto status changes or auto-assigned actions; malformed
+output rejected; deterministic stale/forbidden-data controls active.
+
+**Promotion criteria (before anything beyond human-reviewed drafting):**
+100% schema-valid across the set; >=80% strict rubric pass; zero fabricated
+people/teams/approvals/escalations; zero status-transition errors; manager
+AND developer both passing; stable across repeated runs.
+
 ---
 
 ## cwscx-platform - developer
@@ -22,15 +57,16 @@ Generated 2026-07-13T18:25:28.666201+00:00 by `python -m app.ai.eval.run_golden_
 
 ### Rubric score
 
-| Dimension | Score (1-5) | Notes |
-|---|---|---|
-| Grounded | | |
-| Accurate | | |
-| Complete | | |
-| Safe | | |
-| Useful | | |
-| **Overall pass (Y/N)** | | |
+| Dimension                    | Score (1-5) | Notes |
+| ---------------------------- | ----------- | ----- |
+| Grounded                     | 5           |       |
+| Accurate                     | 5           |       |
+| Complete                     | 5           |       |
+| Safe                         | 5           |       |
+| Useful                       | 5           |       |
+| **Overall pass (Y/N)** | Yes         |       |
 
+**Human verdict: PASS (strong).** Best output - all key facts and the exact missing-doc set correct. Concern: confidence 0.0 despite excellent answer (uncalibrated).
 
 ---
 
@@ -54,15 +90,16 @@ Generated 2026-07-13T18:25:28.666201+00:00 by `python -m app.ai.eval.run_golden_
 
 ### Rubric score
 
-| Dimension | Score (1-5) | Notes |
-|---|---|---|
-| Grounded | | |
-| Accurate | | |
-| Complete | | |
-| Safe | | |
-| Useful | | |
-| **Overall pass (Y/N)** | | |
+| Dimension                    | Score (1-5) | Notes |
+| ---------------------------- | ----------- | ----- |
+| Grounded                     | 2           |       |
+| Accurate                     | 2           |       |
+| Complete                     | 4           |       |
+| Safe                         | 3           |       |
+| Useful                       | 3           |       |
+| **Overall pass (Y/N)** | No          |       |
 
+**Human verdict: FAIL.** Claimed exit guide missing (EXIT.md is current); assumed stakeholders 'actively involved' (source: involvement not fully documented); 'escalate for accountability' is invented management judgment.
 
 ---
 
@@ -84,15 +121,16 @@ Generated 2026-07-13T18:25:28.666201+00:00 by `python -m app.ai.eval.run_golden_
 
 ### Rubric score
 
-| Dimension | Score (1-5) | Notes |
-|---|---|---|
-| Grounded | | |
-| Accurate | | |
-| Complete | | |
-| Safe | | |
-| Useful | | |
-| **Overall pass (Y/N)** | | |
+| Dimension                    | Score (1-5) | Notes |
+| ---------------------------- | ----------- | ----- |
+| Grounded                     | 5           |       |
+| Accurate                     | 5           |       |
+| Complete                     | 5           |       |
+| Safe                         | 5           |       |
+| Useful                       | 5           |       |
+| **Overall pass (Y/N)** | Yes         |       |
 
+**Human verdict: PASS (strong).** Accurate on development state, workflows, SMTP/Entra pendings and Maria/P&C dependency.
 
 ---
 
@@ -114,15 +152,16 @@ Generated 2026-07-13T18:25:28.666201+00:00 by `python -m app.ai.eval.run_golden_
 
 ### Rubric score
 
-| Dimension | Score (1-5) | Notes |
-|---|---|---|
-| Grounded | | |
-| Accurate | | |
-| Complete | | |
-| Safe | | |
-| Useful | | |
-| **Overall pass (Y/N)** | | |
+| Dimension                    | Score (1-5) | Notes |
+| ---------------------------- | ----------- | ----- |
+| Grounded                     | 2           |       |
+| Accurate                     | 2           |       |
+| Complete                     | 4           |       |
+| Safe                         | 3           |       |
+| Useful                       | 4           |       |
+| **Overall pass (Y/N)** | No          |       |
 
+**Human verdict: FAIL.** CEO/Naadir Golden Ticket dependency distorted into general final approval; 'with DevOps' invented (no such owner in source); 'escalate' stronger than source.
 
 ---
 
@@ -146,15 +185,16 @@ Generated 2026-07-13T18:25:28.666201+00:00 by `python -m app.ai.eval.run_golden_
 
 ### Rubric score
 
-| Dimension | Score (1-5) | Notes |
-|---|---|---|
-| Grounded | | |
-| Accurate | | |
-| Complete | | |
-| Safe | | |
-| Useful | | |
-| **Overall pass (Y/N)** | | |
+| Dimension                    | Score (1-5) | Notes |
+| ---------------------------- | ----------- | ----- |
+| Grounded                     | 3           |       |
+| Accurate                     | 2           |       |
+| Complete                     | 4           |       |
+| Safe                         | 4           |       |
+| Useful                       | 4           |       |
+| **Overall pass (Y/N)** | No          |       |
 
+**Human verdict: FAIL.** 'Recent fixes resolved SMSC authentication issues' - source says diagnosed (isolated to auth rejection), NOT confirmed resolved. 'Ongoing UI improvements' overstated. Gap identification otherwise useful. Confidence 0.0 again miscalibrated.
 
 ---
 
@@ -178,15 +218,16 @@ Generated 2026-07-13T18:25:28.666201+00:00 by `python -m app.ai.eval.run_golden_
 
 ### Rubric score
 
-| Dimension | Score (1-5) | Notes |
-|---|---|---|
-| Grounded | | |
-| Accurate | | |
-| Complete | | |
-| Safe | | |
-| Useful | | |
-| **Overall pass (Y/N)** | | |
+| Dimension                    | Score (1-5) | Notes |
+| ---------------------------- | ----------- | ----- |
+| Grounded                     | 3           |       |
+| Accurate                     | 2           |       |
+| Complete                     | 4           |       |
+| Safe                         | 4           |       |
+| Useful                       | 4           |       |
+| **Overall pass (Y/N)** | No          |       |
 
+**Human verdict: FAIL.** Same diagnosed-vs-resolved misstatement; developer_guide duplicated in the gap list (output hygiene). Ownership/handover recommendations were grounded.
 
 ---
 
@@ -210,15 +251,16 @@ Generated 2026-07-13T18:25:28.666201+00:00 by `python -m app.ai.eval.run_golden_
 
 ### Rubric score
 
-| Dimension | Score (1-5) | Notes |
-|---|---|---|
-| Grounded | | |
-| Accurate | | |
-| Complete | | |
-| Safe | | |
-| Useful | | |
-| **Overall pass (Y/N)** | | |
+| Dimension                    | Score (1-5) | Notes |
+| ---------------------------- | ----------- | ----- |
+| Grounded                     | 2           |       |
+| Accurate                     | 3           |       |
+| Complete                     | 4           |       |
+| Safe                         | 3           |       |
+| Useful                       | 5           |       |
+| **Overall pass (Y/N)** | No          |       |
 
+**Human verdict: FAIL.** Useful actions, but assumptions not traceable to the bundle ('idempotency likely part of backend' - source only says to implement checks; tests 'sufficient' is an unsupported judgment; correct phrasing: 'implementation status not recorded'). Omitted the draft deployment guide; did not surface the hard deadlines.
 
 ---
 
@@ -235,12 +277,13 @@ Generated 2026-07-13T18:25:28.666201+00:00 by `python -m app.ai.eval.run_golden_
 
 ### Rubric score
 
-| Dimension | Score (1-5) | Notes |
-|---|---|---|
-| Grounded | | |
-| Accurate | | |
-| Complete | | |
-| Safe | | |
-| Useful | | |
-| **Overall pass (Y/N)** | | |
+| Dimension                    | Score (1-5) | Notes |
+| ---------------------------- | ----------- | ----- |
+| Grounded                     | 1           |       |
+| Accurate                     | 1           |       |
+| Complete                     | 1           |       |
+| Safe                         | 1           |       |
+| Useful                       | 1           |       |
+| **Overall pass (Y/N)** | No          |       |
 
+**Human verdict: FAIL (hard).** Malformed output; schema validation correctly rejected it. The deterministic controls worked; the model/provider did not.

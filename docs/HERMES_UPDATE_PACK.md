@@ -18,6 +18,52 @@ Newest entries first. Each entry: task, date, agent, then notes.
 
 ---
 
+## T10 scored by Gregory; prompt v2 + hardened eval harness (2026-07-14, Claude Fable 5)
+
+**Gregory scored the golden set: 2/8 strict pass** (CWSCX-dev and Pulse-dev
+strong passes; all 4 manager cases failed; VAS-dev and HealthFair-dev
+failed; HealthFair-manager hard-failed on malformed output). His full
+case-by-case verdicts are recorded inside
+`docs/eval/golden_set_report_v1_2026-07-13.md`, along with his deployment
+posture (drafts-only, human review mandatory - already what the
+architecture enforces) and promotion criteria (100% schema-valid, >=80%
+strict pass, zero fabrications/status-upgrades, managers AND developers
+passing, stable across repeated runs). T10 is now checked off; the Phase 3
+gate records honestly that the model did NOT meet the pass bar.
+
+Engineering response, all landed:
+
+- **Prompt v2** (developer + manager) with explicit GROUNDING RULES
+  targeting each observed failure mode: never upgrade a status
+  (diagnosed != resolved), never invent people/teams/escalations, the
+  documentation matrix is authoritative (an artifact recorded current/
+  draft EXISTS), keep dependencies exactly as scoped, surface recorded
+  deadlines, phrase forced assumptions as "X is not recorded", no
+  unsupported quality judgments, no duplicate gaps.
+- **Schema tightened** per his finding: `requires_human_review:
+  Literal[True]` (prompt demanded it, schema now enforces it) and
+  `extra="forbid"` (unexpected keys are now schema failures).
+- **Harness v2** (all five of his evaluation-system issues):
+  1. inputs frozen - exact source-bundle text + SHA-256 per case written
+     to `golden_set_frozen_inputs_v*.json` beside the report, with
+     hash-drift warnings if the DB changes mid-run;
+  2. per-case reference criteria - expected-fact groups and prohibited
+     regex patterns (each encoding a specific v1 failure, e.g. the VAS
+     resolved-vs-diagnosed upgrade, the CWSCX exit-guide contradiction,
+     "with DevOps") auto-checked per run as a pre-screen for the human
+     scorer, plus duplicate-gap hygiene checking;
+  3. schema enforcement matches documentation (above);
+  4. `requires_human_review` now shown for every output in the report;
+  5. multi-run support (`--runs 3` default) with aggregate stats:
+     schema-success rate, claim-check pass rate, latency/token averages.
+- **Confidence de-emphasised in the UI**: the summary card's confidence
+  bar is gone, replaced by a muted footnote explicitly labelled
+  "(uncalibrated - not a reliability indicator)".
+- Golden set v2 executed live (3 runs x 8 cases) - see the new
+  `golden_set_report_v2_*` file, **ready for Gregory's v2 scoring**.
+
+---
+
 ## In-app AI provider + repo activity on the dashboard (2026-07-14, Claude Fable 5)
 
 Continuation of the guided-setup direction; the AI provider now follows the
