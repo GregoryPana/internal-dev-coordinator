@@ -44,6 +44,32 @@ clause-splitting hole before the next live rerun.
 
 ---
 
+## Golden-set v4 run VOID - free-tier daily cap exhausted (2026-07-14, Claude Fable 5)
+
+The v4 evaluation run (`golden_set_report_v4_2026-07-14T102609Z.md`)
+recorded 0/24 schema-valid - **every attempt failed `provider_unavailable`
+(429)**. Root cause confirmed via OpenRouter's key endpoint: the account is
+free-tier, and free-model usage is capped at ~50 requests/day account-wide;
+today's three 24-call evaluation runs plus probes exhausted it. The report
+is preserved (immutable artifacts rule) but is **provider-outage evidence,
+not model evidence - do not score it**. Prompt v4 itself is committed and
+untested.
+
+Operational finding: the stronger 3x methodology triples evaluation cost -
+one golden-set run is ~24 calls, so two runs/day hit the free cap. Options
+for Gregory (this is also exactly Hermes' P1.5 stronger-model question):
+
+1. wait for the daily reset and rerun v4 (free, slow, cap recurs);
+2. add $10 OpenRouter credit - lifts the free-model cap to ~1000/day and
+   keeps per-call cost at zero;
+3. evaluate a small paid model (e.g. for manager summaries) - Hermes'
+   recommendation, since prompt-only mitigation has plateaued.
+
+Next v4 evaluation runs with `python -m app.ai.eval.run_golden_set --runs 3`
+once quota exists; artifacts will get a fresh timestamp automatically.
+
+---
+
 ## Golden-set v3 evaluation executed (2026-07-14, Claude Fable 5)
 
 Gate cleared: Gregory confirmed Hermes' event 487 + minimal next-action
