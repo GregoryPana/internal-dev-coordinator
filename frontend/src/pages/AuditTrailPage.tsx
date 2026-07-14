@@ -112,7 +112,7 @@ export function AuditTrailPage() {
         <EmptyState title="No audit events" message="Nothing recorded yet for this filter." />
       ) : (
         <>
-          <div className="overflow-x-auto rounded-md border border-border">
+          <div className="hidden overflow-x-auto rounded-md border border-border md:block">
             <table className="w-full min-w-[760px] table-fixed text-left text-sm">
               <colgroup>
                 <col className="w-40" />
@@ -172,6 +172,54 @@ export function AuditTrailPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          <div className="flex flex-col gap-3 md:hidden">
+            {page.items.map((event) => (
+              <div key={event.id} className="rounded-md border border-border p-3">
+                <div className="mb-2 flex items-start justify-between gap-2">
+                  <StatusChip label={AUDIT_ACTION_TYPE_LABELS[event.action_type]} tone="neutral" />
+                  <span className="text-xs text-muted-text" title={event.created_at}>
+                    {new Date(event.created_at).toLocaleString()}
+                  </span>
+                </div>
+                <dl className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-text">Actor</dt>
+                    <dd className="truncate text-text" title={event.actor_email ?? undefined}>
+                      {event.actor_name ?? event.actor_email ?? "system"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-text">Object</dt>
+                    <dd className="truncate text-muted-text">
+                      {AUDIT_OBJECT_TYPE_LABELS[event.object_type]}
+                      {event.object_id != null ? ` #${event.object_id}` : ""}
+                    </dd>
+                  </div>
+                  {!projectId && (
+                    <div>
+                      <dt className="text-xs font-medium uppercase tracking-wide text-muted-text">Project</dt>
+                      <dd>
+                        {event.project_id != null ? (
+                          <Link to={`/projects/${event.project_id}`} className="text-primary hover:underline">
+                            #{event.project_id}
+                          </Link>
+                        ) : (
+                          <span className="text-muted-text">—</span>
+                        )}
+                      </dd>
+                    </div>
+                  )}
+                  {metadataSummary(event.metadata_json) && (
+                    <div className="col-span-2">
+                      <dt className="text-xs font-medium uppercase tracking-wide text-muted-text">Details</dt>
+                      <dd className="text-muted-text">{metadataSummary(event.metadata_json)}</dd>
+                    </div>
+                  )}
+                </dl>
+              </div>
+            ))}
           </div>
 
           <div className="mt-4 flex items-center justify-between text-sm">

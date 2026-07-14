@@ -247,7 +247,7 @@ export function AISummaryPage() {
             Every AI run against this project, all task types (FR-022). Full detail is stored in
             the AIInteraction record.
           </p>
-          <div className="overflow-x-auto rounded-md border border-border">
+          <div className="hidden overflow-x-auto rounded-md border border-border md:block">
             <table className="w-full min-w-[720px] table-fixed text-left text-sm">
               <colgroup>
                 <col className="w-40" />
@@ -306,6 +306,51 @@ export function AISummaryPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          <div className="flex flex-col gap-3 md:hidden">
+            {interactions.map((run) => (
+              <div key={run.id} className="rounded-md border border-border p-3">
+                <div className="mb-2 flex items-start justify-between gap-2">
+                  <span className="text-sm font-medium text-text">{run.task_type.replace(/_/g, " ")}</span>
+                  <span className="text-xs text-muted-text" title={run.created_at}>
+                    {new Date(run.created_at).toLocaleString()}
+                  </span>
+                </div>
+                <div className="mb-2 flex flex-wrap gap-2">
+                  <StatusChip
+                    label={VALIDATION_STATUS_LABELS[run.validation_status]}
+                    tone={run.validation_status === "passed" ? "success" : "danger"}
+                  />
+                  <StatusChip
+                    label={HUMAN_REVIEW_STATUS_LABELS[run.human_review_status]}
+                    tone={HUMAN_REVIEW_STATUS_TONE[run.human_review_status]}
+                  />
+                </div>
+                <dl className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-text">Audience</dt>
+                    <dd className="text-muted-text">
+                      {run.audience ? AI_AUDIENCE_LABELS[run.audience] : "—"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-text">Model</dt>
+                    <dd className="truncate text-muted-text" title={`${run.model_provider}/${run.model_name}`}>
+                      {run.model_provider}/{run.model_name}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-text">Tokens</dt>
+                    <dd className="tabular-nums text-muted-text">
+                      {run.input_tokens != null && run.output_tokens != null
+                        ? `${run.input_tokens} / ${run.output_tokens}`
+                        : "—"}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            ))}
           </div>
         </div>
       )}

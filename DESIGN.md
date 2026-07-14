@@ -216,15 +216,17 @@ AI copy should be framed as **draft/reviewed output**, never automatic truth.
 
 ## 7. Responsive behaviour
 
-Default target is laptop/desktop because this is a workbench for Gregory/developers/managers.
+**Direction change (2026-07-14, Gregory):** this is now a dual-target app — full mobile usability plus a desktop layout that uses the full screen. Superseded the earlier "laptop-first" default below.
+
+- **Desktop (≥768px, `md:` and up):** the app shell content area is fluid/edge-to-edge (no fixed max-width container) with responsive side padding (`px-4` → `px-12` as viewport grows). Top nav (`Portfolio`, `Audit`, `Settings`) stays in the header. Tables render as real tables.
+- **Mobile (<768px):** primary navigation moves to a fixed bottom tab bar (icon + label, `Portfolio`/`Audit`/`Settings`); the top header collapses to the product name/environment badge and the dev-auth email field only. Data tables (project list, documentation matrix, audit trail, AI activity log) render as stacked label/value cards instead of a scrolling table — no horizontal scroll on any primary view. Forms and page-header actions wrap rather than overflow.
+- Breakpoint used for the nav/table switch is Tailwind's `md` (768px), matching the existing tablet reference point.
 
 Minimum responsive standard:
 
-- 1280px desktop: full shell + tables/cards.
-- 768px tablet: nav may collapse; cards stack in 2 columns; tables remain readable or become priority lists.
-- 375px mobile: no broken layout; important pages readable, but complex matrix work may be simplified.
-
-Do not optimise this MVP around mobile-first participant flows; those belong to event platforms, not this control plane.
+- 1280px+ desktop: full shell, fluid width, tables/cards as designed.
+- 768px tablet: bottom tab bar active; cards stack in 2 columns; tables switch to card view at the same breakpoint as mobile.
+- 375px mobile: no broken layout, no horizontal scrolling on core pages; all primary workflows (create/edit project, status update, documentation matrix edit, audit browsing, AI summary review) are fully usable.
 
 ## 8. Accessibility and safety
 

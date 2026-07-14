@@ -18,6 +18,32 @@ Newest entries first. Each entry: task, date, agent, then notes.
 
 ---
 
+## Hermes advisory evaluation of prompt v3 (2026-07-14, Hermes)
+
+The complete advisory assessment is preserved at
+`docs/eval/HERMES_EVALUATION_V3_2026-07-14.md`. Gregory remains the formal
+human scorer under `docs/eval/RUBRIC.md`; generated report/frozen-input
+artifacts were not edited.
+
+Key outcome from the 3 x 8 run:
+
+- schema-valid: **24/24 (100.0%)**;
+- heuristic pre-screen: **19/24 (79.2%)**, including one confirmed CWSCX
+  documentation-summary false positive;
+- Hermes-advisory strict run passes: **10/24 (41.7%)**;
+- strict stable case passes: **0/8** because no case passed all three runs;
+- developer runs: **7/12** passing; manager runs: **3/12** passing;
+- indicative per-run average: **3.75/5**;
+- operating boundary remains drafts-only with mandatory human review.
+
+The detailed note contains all 24 advisory score rows, case evidence,
+v1/v2/v3 comparison, confidence analysis, promotion criteria and a
+continuation brief. P0 harness follow-up: fix the `gaps exist`/artifact-
+exists false positive and the protected-subject state checker’s `and`
+clause-splitting hole before the next live rerun.
+
+---
+
 ## Golden-set v3 evaluation executed (2026-07-14, Claude Fable 5)
 
 Gate cleared: Gregory confirmed Hermes' event 487 + minimal next-action

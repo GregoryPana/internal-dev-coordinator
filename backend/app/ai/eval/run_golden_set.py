@@ -57,9 +57,10 @@ _ACCEPTABLE_STATE_VERBS = re.compile(r"\b(isolat\w*|diagnos\w*|identif\w*)\b", r
 
 def _clauses(text: str) -> list[str]:
     """Split prose into clauses so a 'resolved' in one clause cannot be
-    attributed to a subject in another (Hermes P0: no unrestricted
-    cross-clause matching)."""
-    return [c.strip() for c in re.split(r"[.;,]|\band\b", text) if c.strip()]
+    attributed to a subject in another. Deliberately does NOT split on
+    'and' (Hermes v3 P0): 'the SMSC issue was isolated and resolved' must
+    stay one clause so the resolved-claim is still attached to its subject."""
+    return [c.strip() for c in re.split(r"[.;,]", text) if c.strip()]
 
 
 def check_state_transitions(text: str, subjects: tuple) -> list[str]:
@@ -119,7 +120,9 @@ def check_doc_gaps_structurally(matrix_state: dict, output_json: dict) -> dict:
     duplicates = len(lowered_gaps) != len(set(lowered_gaps))
 
     # Summary prose contradiction: "<artifact> ... current/complete" while
-    # the matrix marks it a gap.
+    # the matrix marks it a gap. A window that talks about GAPS existing
+    # ("documentation gaps exist for ... verification matrix") is a
+    # missing-claim, not a presence-claim - Hermes v3 P0 false positive.
     summary = (output_json.get("summary") or "").lower()
     summary_contradictions = []
     for artifact, state in matrix_state.items():
@@ -127,9 +130,14 @@ def check_doc_gaps_structurally(matrix_state: dict, output_json: dict) -> dict:
             if phrase in summary:
                 window_start = summary.index(phrase)
                 window = summary[max(0, window_start - 60): window_start + len(phrase) + 60]
-                if state["is_gap"] and re.search(r"\b(current|complete|approved|exists?)\b", window):
+                gap_context = re.search(r"\b(gap\w*|missing|absent|lack\w*)\b", window) is not None
+                presence_claim = (
+                    re.search(r"\b(current|complete|approved|exists?)\b", window) is not None
+                    and not gap_context
+                )
+                if state["is_gap"] and presence_claim:
                     summary_contradictions.append(f"{artifact} called present but matrix says gap")
-                if not state["is_gap"] and re.search(r"\b(missing|absent)\b", window):
+                if not state["is_gap"] and gap_context:
                     summary_contradictions.append(f"{artifact} called missing but matrix says it exists")
                 break
 
@@ -290,29 +298,46 @@ def run(db: Session | None = None, runs: int = 1, overwrite: bool = False) -> Pa
     stats = {"attempts": 0, "schema_ok": 0, "claims_ok": 0, "latency_ms": [], "tokens": []}
 
     try:
+        # Snapshot the full evaluation input boundary BEFORE the first
+        # provider call (Hermes v3 P2): a live API write during the run can
+        # no longer change a later case's bundle relative to this freeze.
+        snapshots: dict[str, dict] = {}
+        for spec in GOLDEN_SET:
+            project = db.scalar(select(Project).where(Project.slug == spec.project_slug))
+            if project is None:
+                continue
+            bundle = build_source_bundle(db, project)
+            snapshots[spec.label] = {
+                "project_id": project.id,
+                "bundle_text": bundle.text,
+                "bundle_hash": hashlib.sha256(bundle.text.encode("utf-8")).hexdigest(),
+                "matrix_state": {
+                    e.artifact_type.value: {"required": e.required, "is_gap": e.is_gap}
+                    for e in get_matrix(db, project)
+                },
+            }
+
         for spec in GOLDEN_SET:
             project = db.scalar(select(Project).where(Project.slug == spec.project_slug))
             header = f"## {spec.label}\n\n"
-            if project is None:
+            if project is None or spec.label not in snapshots:
                 sections.append(header + f"**Project slug `{spec.project_slug}` not found - skipped.**\n\n")
                 continue
 
-            bundle = build_source_bundle(db, project)
-            bundle_hash = hashlib.sha256(bundle.text.encode("utf-8")).hexdigest()
-            matrix_state = {
-                e.artifact_type.value: {"required": e.required, "is_gap": e.is_gap}
-                for e in get_matrix(db, project)
-            }
+            snap = snapshots[spec.label]
+            bundle_hash = snap["bundle_hash"]
+            matrix_state = snap["matrix_state"]
             frozen_inputs[spec.label] = {
                 "project_slug": spec.project_slug,
                 "audience": spec.audience.value,
                 "bundle_sha256": bundle_hash,
-                "bundle_text": bundle.text,
+                "bundle_text": snap["bundle_text"],
                 "documentation_matrix": matrix_state,
                 "expected_facts": [list(g) for g in spec.expected_facts],
                 "prohibited_patterns": list(spec.prohibited_patterns),
                 "no_resolved_subjects": list(spec.no_resolved_subjects),
-                "frozen_at": datetime.now(timezone.utc).isoformat(),
+                "fact_checklist": list(spec.fact_checklist),
+                "frozen_at": started_at.isoformat(),
             }
 
             case_lines = [
@@ -353,6 +378,11 @@ def run(db: Session | None = None, runs: int = 1, overwrite: bool = False) -> Pa
                 )
             case_lines.append("\n")
             case_lines.extend(run_bodies)
+            if spec.fact_checklist:
+                case_lines.append("### Human fact checklist (verify against the frozen bundle)\n\n")
+                for item in spec.fact_checklist:
+                    case_lines.append(f"- [ ] {item}\n")
+                case_lines.append("\n")
             case_lines.append(_STABILITY_TABLE.format(schema=f"{case_schema_ok}/{runs}"))
             case_lines.append("\n")
             sections.append("".join(case_lines))

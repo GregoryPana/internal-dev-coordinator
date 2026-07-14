@@ -26,6 +26,84 @@ function toEditState(entry: DocMatrixEntry): EditState {
   };
 }
 
+function ArtifactEditForm({
+  editState,
+  setEditState,
+  onSave,
+  onCancel,
+  saving,
+}: {
+  editState: EditState;
+  setEditState: (s: EditState) => void;
+  onSave: () => void;
+  onCancel: () => void;
+  saving: boolean;
+}) {
+  return (
+    <div>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <label className="flex flex-col gap-1 text-xs font-medium text-text">
+          Title
+          <input
+            value={editState.title}
+            onChange={(e) => setEditState({ ...editState, title: e.target.value })}
+            className="rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-text focus-visible:ring-2 focus-visible:ring-primary"
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-xs font-medium text-text">
+          Status
+          <select
+            value={editState.status}
+            onChange={(e) => setEditState({ ...editState, status: e.target.value })}
+            className="rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-text focus-visible:ring-2 focus-visible:ring-primary"
+          >
+            {ARTIFACT_STATUSES.map((s) => (
+              <option key={s} value={s}>
+                {ARTIFACT_STATUS_LABELS[s]}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1 text-xs font-medium text-text sm:col-span-2">
+          Source path or link
+          <input
+            value={editState.source_path}
+            onChange={(e) => setEditState({ ...editState, source_path: e.target.value })}
+            placeholder="e.g. docs/AGENT_GUIDE.md"
+            className="rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-text focus-visible:ring-2 focus-visible:ring-primary"
+          />
+        </label>
+        <label className="flex flex-col gap-1 text-xs font-medium text-text sm:col-span-2">
+          Notes
+          <textarea
+            value={editState.notes}
+            onChange={(e) => setEditState({ ...editState, notes: e.target.value })}
+            rows={2}
+            className="rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-text focus-visible:ring-2 focus-visible:ring-primary"
+          />
+        </label>
+      </div>
+      <div className="mt-3 flex gap-2">
+        <button
+          type="button"
+          disabled={saving}
+          onClick={onSave}
+          className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-fg hover:bg-primary-hover disabled:opacity-60"
+        >
+          {saving ? "Saving…" : "Save"}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs font-medium text-text hover:bg-surface-muted"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export function DocumentationMatrix({
   projectId,
   userEmail,
@@ -103,7 +181,7 @@ export function DocumentationMatrix({
           <StatusChip label="All required docs registered" tone="success" />
         )}
       </div>
-      <div className="overflow-x-auto rounded-md border border-border">
+      <div className="hidden overflow-x-auto rounded-md border border-border md:block">
         <table className="w-full min-w-[640px] table-fixed text-left text-sm">
           <colgroup>
             <col className="w-40" />
@@ -157,68 +235,16 @@ export function DocumentationMatrix({
                 {editingType === entry.artifact_type && editState && (
                   <tr>
                     <td colSpan={5} className="bg-surface-muted px-3 py-4">
-                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <label className="flex flex-col gap-1 text-xs font-medium text-text">
-                          Title
-                          <input
-                            value={editState.title}
-                            onChange={(e) => setEditState({ ...editState, title: e.target.value })}
-                            className="rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-text focus-visible:ring-2 focus-visible:ring-primary"
-                          />
-                        </label>
-                        <label className="flex flex-col gap-1 text-xs font-medium text-text">
-                          Status
-                          <select
-                            value={editState.status}
-                            onChange={(e) => setEditState({ ...editState, status: e.target.value })}
-                            className="rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-text focus-visible:ring-2 focus-visible:ring-primary"
-                          >
-                            {ARTIFACT_STATUSES.map((s) => (
-                              <option key={s} value={s}>
-                                {ARTIFACT_STATUS_LABELS[s]}
-                              </option>
-                            ))}
-                          </select>
-                        </label>
-                        <label className="flex flex-col gap-1 text-xs font-medium text-text sm:col-span-2">
-                          Source path or link
-                          <input
-                            value={editState.source_path}
-                            onChange={(e) => setEditState({ ...editState, source_path: e.target.value })}
-                            placeholder="e.g. docs/AGENT_GUIDE.md"
-                            className="rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-text focus-visible:ring-2 focus-visible:ring-primary"
-                          />
-                        </label>
-                        <label className="flex flex-col gap-1 text-xs font-medium text-text sm:col-span-2">
-                          Notes
-                          <textarea
-                            value={editState.notes}
-                            onChange={(e) => setEditState({ ...editState, notes: e.target.value })}
-                            rows={2}
-                            className="rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-text focus-visible:ring-2 focus-visible:ring-primary"
-                          />
-                        </label>
-                      </div>
-                      <div className="mt-3 flex gap-2">
-                        <button
-                          type="button"
-                          disabled={saving}
-                          onClick={() => save(entry.artifact_type)}
-                          className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-fg hover:bg-primary-hover disabled:opacity-60"
-                        >
-                          {saving ? "Saving…" : "Save"}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditingType(null);
-                            setEditState(null);
-                          }}
-                          className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs font-medium text-text hover:bg-surface-muted"
-                        >
-                          Cancel
-                        </button>
-                      </div>
+                      <ArtifactEditForm
+                        editState={editState}
+                        setEditState={setEditState}
+                        saving={saving}
+                        onSave={() => save(entry.artifact_type)}
+                        onCancel={() => {
+                          setEditingType(null);
+                          setEditState(null);
+                        }}
+                      />
                     </td>
                   </tr>
                 )}
@@ -226,6 +252,54 @@ export function DocumentationMatrix({
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div className="flex flex-col gap-3 md:hidden">
+        {entries.map((entry) => (
+          <div key={entry.artifact_type} className="rounded-md border border-border p-3">
+            <div className="mb-2 flex items-start justify-between gap-2">
+              <span className="text-sm font-medium text-text">
+                {ARTIFACT_TYPE_LABELS[entry.artifact_type]}
+              </span>
+              <StatusChip
+                label={entry.is_gap ? "Gap" : ARTIFACT_STATUS_LABELS[entry.status]}
+                tone={entry.is_gap ? "danger" : ARTIFACT_STATUS_TONE[entry.status]}
+              />
+            </div>
+            <dl className="mb-2 grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <dt className="text-xs font-medium uppercase tracking-wide text-muted-text">Required</dt>
+                <dd className="text-text">{entry.required ? "Required" : "Optional"}</dd>
+              </div>
+              <div>
+                <dt className="text-xs font-medium uppercase tracking-wide text-muted-text">Source</dt>
+                <dd className="truncate text-muted-text" title={entry.source_path ?? ""}>
+                  {entry.source_path || "not set"}
+                </dd>
+              </div>
+            </dl>
+            {editingType === entry.artifact_type && editState ? (
+              <ArtifactEditForm
+                editState={editState}
+                setEditState={setEditState}
+                saving={saving}
+                onSave={() => save(entry.artifact_type)}
+                onCancel={() => {
+                  setEditingType(null);
+                  setEditState(null);
+                }}
+              />
+            ) : (
+              <button
+                type="button"
+                onClick={() => startEdit(entry)}
+                className="rounded-md border border-border bg-surface px-2.5 py-1.5 text-xs font-medium text-text hover:bg-surface-muted"
+              >
+                {entry.status === "missing" ? "Register" : "Edit"}
+              </button>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );

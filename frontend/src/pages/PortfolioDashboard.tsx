@@ -44,6 +44,8 @@ export function PortfolioDashboard() {
   const [phaseFilter, setPhaseFilter] = useState<ProjectPhase | "">("");
   const [priorityFilter, setPriorityFilter] = useState<Priority | "">("");
   const [staleOnly, setStaleOnly] = useState(false);
+  const [aiOnly, setAIOnly] = useState(false);
+  const [automationOnly, setAutomationOnly] = useState(false);
   const [sortKey, setSortKey] = useState<SortKey>("priority");
   const [edition, setEdition] = useState<"custom" | "product">("product");
 
@@ -72,6 +74,8 @@ export function PortfolioDashboard() {
       if (phaseFilter && p.phase !== phaseFilter) return false;
       if (priorityFilter && p.priority !== priorityFilter) return false;
       if (staleOnly && !p.is_stale) return false;
+      if (aiOnly && !p.uses_ai) return false;
+      if (automationOnly && !p.uses_process_automation) return false;
       if (
         needle &&
         !p.name.toLowerCase().includes(needle) &&
@@ -94,10 +98,26 @@ export function PortfolioDashboard() {
       const rank = PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority];
       return rank !== 0 ? rank : a.name.localeCompare(b.name);
     });
-  }, [projects, search, statusFilter, phaseFilter, priorityFilter, staleOnly, sortKey]);
+  }, [
+    projects,
+    search,
+    statusFilter,
+    phaseFilter,
+    priorityFilter,
+    staleOnly,
+    aiOnly,
+    automationOnly,
+    sortKey,
+  ]);
 
   const filtersActive =
-    search.trim() !== "" || statusFilter !== "" || phaseFilter !== "" || priorityFilter !== "" || staleOnly;
+    search.trim() !== "" ||
+    statusFilter !== "" ||
+    phaseFilter !== "" ||
+    priorityFilter !== "" ||
+    staleOnly ||
+    aiOnly ||
+    automationOnly;
 
   function clearFilters() {
     setSearch("");
@@ -105,6 +125,8 @@ export function PortfolioDashboard() {
     setPhaseFilter("");
     setPriorityFilter("");
     setStaleOnly(false);
+    setAIOnly(false);
+    setAutomationOnly(false);
   }
 
   const selectClass =
@@ -133,7 +155,7 @@ export function PortfolioDashboard() {
 
       {projects && projects.length > 0 && (
         <div
-          className={`mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3 ${
+          className={`mb-6 grid grid-cols-2 gap-4 sm:grid-cols-3 ${
             edition === "custom" ? "lg:grid-cols-5" : ""
           }`}
         >
@@ -160,8 +182,24 @@ export function PortfolioDashboard() {
           />
           {edition === "custom" && (
             <>
-              <SummaryCard label="Uses AI" value={aiCount} />
-              <SummaryCard label="Process automation" value={automationCount} />
+              <SummaryCard
+                label="Uses AI"
+                value={aiCount}
+                active={aiOnly}
+                onClick={() => {
+                  clearFilters();
+                  setAIOnly(!aiOnly);
+                }}
+              />
+              <SummaryCard
+                label="Process automation"
+                value={automationCount}
+                active={automationOnly}
+                onClick={() => {
+                  clearFilters();
+                  setAutomationOnly(!automationOnly);
+                }}
+              />
             </>
           )}
         </div>
@@ -311,75 +349,119 @@ function ProjectSection({
           Nothing here for the current filters.
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-border bg-surface">
-          <table className="w-full min-w-[820px] table-fixed text-left text-sm">
-            <colgroup>
-              <col className="w-48" />
-              <col className="w-32" />
-              <col className="w-28" />
-              <col className="w-20" />
-              <col className="w-24" />
-              <col className="w-32" />
-              <col className="w-52" />
-              <col className="w-44" />
-            </colgroup>
-            <thead className="bg-surface-muted text-xs uppercase tracking-wide text-muted-text">
-              <tr>
-                <th className="px-4 py-2 font-medium">Project</th>
-                <th className="px-4 py-2 font-medium">Phase</th>
-                <th className="px-4 py-2 font-medium">Status</th>
-                <th className="px-4 py-2 font-medium">Priority</th>
-                <th className="px-4 py-2 font-medium">Progress</th>
-                <th className="px-4 py-2 font-medium">Owner</th>
-                <th className="px-4 py-2 font-medium">Next action</th>
-                <th className="px-4 py-2 font-medium">Freshness</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {projects.map((p) => (
-                <tr key={p.id} className="hover:bg-surface-muted/60">
-                  <td className="truncate px-4 py-3">
-                    <Link to={`/projects/${p.id}`} className="font-medium text-primary hover:underline">
-                      {p.name}
-                    </Link>
-                  </td>
-                  <td className="truncate px-4 py-3 text-text">{PROJECT_PHASE_LABELS[p.phase]}</td>
-                  <td className="px-4 py-3">
-                    <StatusChip label={PROJECT_STATUS_LABELS[p.status]} tone={PROJECT_STATUS_TONE[p.status]} />
-                  </td>
-                  <td className="truncate px-4 py-3 text-text">{PRIORITY_LABELS[p.priority]}</td>
-                  <td className="px-4 py-3 text-muted-text">
-                    {p.percent_complete != null ? (
-                      <span className="flex items-center gap-1.5">
-                        <span className="h-1.5 w-12 rounded-full bg-surface-muted">
-                          <span
-                            className="block h-1.5 rounded-full bg-primary"
-                            style={{ width: `${p.percent_complete}%` }}
-                          />
-                        </span>
-                        <span className="text-xs tabular-nums">{p.percent_complete}%</span>
-                      </span>
-                    ) : (
-                      "—"
-                    )}
-                  </td>
-                  <td className="truncate px-4 py-3 text-muted-text">{p.owner?.name ?? "Unassigned"}</td>
-                  <td className="truncate px-4 py-3 text-muted-text" title={p.current_next_action ?? ""}>
-                    {p.current_next_action || "—"}
-                  </td>
-                  <td className="px-4 py-3">
-                    <FreshnessBadge dataAsOf={p.data_as_of} isStale={p.is_stale} />
-                    {p.repo_last_push && (
-                      <p className="mt-1 text-xs text-muted-text" title="Latest tracked GitHub push">
-                        pushed {new Date(p.repo_last_push).toLocaleDateString()}
-                      </p>
-                    )}
-                  </td>
+        <>
+          <div className="hidden overflow-x-auto rounded-lg border border-border bg-surface md:block">
+            <table className="w-full min-w-[820px] table-fixed text-left text-sm">
+              <colgroup>
+                <col className="w-48" />
+                <col className="w-32" />
+                <col className="w-28" />
+                <col className="w-20" />
+                <col className="w-24" />
+                <col className="w-32" />
+                <col className="w-52" />
+                <col className="w-44" />
+              </colgroup>
+              <thead className="bg-surface-muted text-xs uppercase tracking-wide text-muted-text">
+                <tr>
+                  <th className="px-4 py-2 font-medium">Project</th>
+                  <th className="px-4 py-2 font-medium">Phase</th>
+                  <th className="px-4 py-2 font-medium">Status</th>
+                  <th className="px-4 py-2 font-medium">Priority</th>
+                  <th className="px-4 py-2 font-medium">Progress</th>
+                  <th className="px-4 py-2 font-medium">Owner</th>
+                  <th className="px-4 py-2 font-medium">Next action</th>
+                  <th className="px-4 py-2 font-medium">Freshness</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {projects.map((p) => (
+                  <tr key={p.id} className="hover:bg-surface-muted/60">
+                    <td className="truncate px-4 py-3">
+                      <Link to={`/projects/${p.id}`} className="font-medium text-primary hover:underline">
+                        {p.name}
+                      </Link>
+                    </td>
+                    <td className="truncate px-4 py-3 text-text">{PROJECT_PHASE_LABELS[p.phase]}</td>
+                    <td className="px-4 py-3">
+                      <StatusChip label={PROJECT_STATUS_LABELS[p.status]} tone={PROJECT_STATUS_TONE[p.status]} />
+                    </td>
+                    <td className="truncate px-4 py-3 text-text">{PRIORITY_LABELS[p.priority]}</td>
+                    <td className="px-4 py-3 text-muted-text">
+                      {p.percent_complete != null ? (
+                        <span className="flex items-center gap-1.5">
+                          <span className="h-1.5 w-12 rounded-full bg-surface-muted">
+                            <span
+                              className="block h-1.5 rounded-full bg-primary"
+                              style={{ width: `${p.percent_complete}%` }}
+                            />
+                          </span>
+                          <span className="text-xs tabular-nums">{p.percent_complete}%</span>
+                        </span>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+                    <td className="truncate px-4 py-3 text-muted-text">{p.owner?.name ?? "Unassigned"}</td>
+                    <td className="truncate px-4 py-3 text-muted-text" title={p.current_next_action ?? ""}>
+                      {p.current_next_action || "—"}
+                    </td>
+                    <td className="px-4 py-3">
+                      <FreshnessBadge dataAsOf={p.data_as_of} isStale={p.is_stale} />
+                      {p.repo_last_push && (
+                        <p className="mt-1 text-xs text-muted-text" title="Latest tracked GitHub push">
+                          pushed {new Date(p.repo_last_push).toLocaleDateString()}
+                        </p>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="flex flex-col gap-3 md:hidden">
+            {projects.map((p) => (
+              <Link
+                key={p.id}
+                to={`/projects/${p.id}`}
+                className="rounded-lg border border-border bg-surface p-4 hover:bg-surface-muted/60"
+              >
+                <div className="mb-2 flex items-start justify-between gap-2">
+                  <span className="font-medium text-primary">{p.name}</span>
+                  <StatusChip label={PROJECT_STATUS_LABELS[p.status]} tone={PROJECT_STATUS_TONE[p.status]} />
+                </div>
+                <dl className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
+                  <div>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-text">Phase</dt>
+                    <dd className="text-text">{PROJECT_PHASE_LABELS[p.phase]}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-text">Priority</dt>
+                    <dd className="text-text">{PRIORITY_LABELS[p.priority]}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-text">Owner</dt>
+                    <dd className="truncate text-text">{p.owner?.name ?? "Unassigned"}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-text">Progress</dt>
+                    <dd className="tabular-nums text-text">
+                      {p.percent_complete != null ? `${p.percent_complete}%` : "—"}
+                    </dd>
+                  </div>
+                  <div className="col-span-2">
+                    <dt className="text-xs font-medium uppercase tracking-wide text-muted-text">Next action</dt>
+                    <dd className="text-text">{p.current_next_action || "—"}</dd>
+                  </div>
+                  <div className="col-span-2">
+                    <FreshnessBadge dataAsOf={p.data_as_of} isStale={p.is_stale} />
+                  </div>
+                </dl>
+              </Link>
+            ))}
+          </div>
+        </>
       )}
     </section>
   );
@@ -408,12 +490,4 @@ function SummaryCard({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-lg border bg-surface px-4 py-3 text-left transition-colors hover:bg-surface-muted/60 focus-visible:ring-2 focus-visible:ring-primary ${
-        active ? "border-primary" : "border-border"
-      }`}
-    >
-      <p className="text-xs font-medium uppercase tracking-wide text-muted-text">{label}</p>
-      <p className={`mt-1 text-2xl font-semibold tabular-nums ${toneClass}`}>{value}</p>
-    </button>
-  );
-}
+     

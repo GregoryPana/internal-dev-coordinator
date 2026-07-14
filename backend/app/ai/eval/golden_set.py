@@ -39,9 +39,22 @@ class GoldenBundleSpec:
     # Clause-scoped: a clause mentioning any of these subjects must not
     # claim resolution/fixing (see check_state_transitions in the runner).
     no_resolved_subjects: tuple = ()
+    # Human-scored fact checklist rendered per case in the report (Hermes
+    # v3 P1: prefer human-checked assertions over broad regexes for the
+    # failures that cannot be represented structurally).
+    fact_checklist: tuple = ()
 
 
-def _spec(slug: str, audience: AIAudience, expected=(), prohibited=(), no_resolved=()) -> GoldenBundleSpec:
+_MANAGER_CHECKLIST = (
+    "No invented consequences: 'poses risk to adoption', 'business value contingent', "
+    "'risks missing the deadline', 'pending alignment', 'delay' only if the bundle records it",
+    "Phase/status vocabulary repeated exactly (live is not 'active development'; "
+    "'not confirmed' is not 'pending approval')",
+    "Action-verb strength preserved (confirm != approve/implement)",
+)
+
+
+def _spec(slug: str, audience: AIAudience, expected=(), prohibited=(), no_resolved=(), checklist=()) -> GoldenBundleSpec:
     return GoldenBundleSpec(
         label=f"{slug} - {audience.value}",
         project_slug=slug,
@@ -49,6 +62,8 @@ def _spec(slug: str, audience: AIAudience, expected=(), prohibited=(), no_resolv
         expected_facts=tuple(tuple(g) for g in expected),
         prohibited_patterns=tuple(prohibited),
         no_resolved_subjects=tuple(no_resolved),
+        fact_checklist=tuple(checklist)
+        + (_MANAGER_CHECKLIST if audience == AIAudience.MANAGER else ()),
     )
 
 
@@ -56,6 +71,11 @@ GOLDEN_SET: list[GoldenBundleSpec] = [
     _spec(
         "cwscx-platform", AIAudience.DEVELOPER,
         expected=[["mystery shopper", "dmz", "smoke"]],
+        checklist=(
+            "Phase stated as recorded (live) - not 'in active development'",
+            "Local/uncommitted B2B CSAT boundary retained",
+            "Project name spelled correctly (CWSCX)",
+        ),
     ),
     _spec(
         "cwscx-platform", AIAudience.MANAGER,
@@ -81,17 +101,29 @@ GOLDEN_SET: list[GoldenBundleSpec] = [
         "vas-network-check", AIAudience.DEVELOPER,
         expected=[["diagnos", "isolat", "identif"], ["handover", "ownership"]],
         no_resolved=("smsc", "authentication", "auth rejection"),
+        checklist=(
+            "SMSC failure described as ISOLATED/diagnosed, never resolved/fixed",
+            "No invented components (bundle has MJML/Jinja2 email + workbook + SSH diagnostic - no SVG, no IPv6)",
+            "Isolation not described as still outstanding (it is recorded as done; next action is monitoring)",
+        ),
     ),
     _spec(
         "vas-network-check", AIAudience.MANAGER,
         expected=[["handover", "ownership"]],
         no_resolved=("smsc", "authentication", "auth rejection"),
+        checklist=(
+            "SMSC failure described as isolated, never resolved; no invented severity (e.g. 'critical')",
+        ),
     ),
     _spec(
         "health-fair-2026", AIAudience.DEVELOPER,
         expected=[["2026-07-31", "2026-08-07", "july 31", "august 7"], ["ohse"]],
         prohibited=_NO_VAGUE_QUARTERS + (
             r"(likely|probably)[^.]{0,60}(implemented|part of the backend)",
+        ),
+        checklist=(
+            "Visual browser QA described as NOT performed (recorded explicitly) - not 'QA passing' or 'not recorded'",
+            "No-deployment/no-migration boundary retained",
         ),
     ),
     _spec(

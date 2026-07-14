@@ -240,3 +240,39 @@ def test_run_writes_timestamped_artifacts_and_refuses_overwrite(
     monkeypatch.setattr(run_module, "datetime", _FixedDatetime)
     with pytest.raises(FileExistsError):
         run(db, runs=1)
+
+
+# --- Hermes v3 P0 regression fixtures ---
+
+def test_state_transition_isolated_AND_resolved_same_clause_fails() -> None:
+    """Hermes v3 P0: the splitter must not break on 'and' - 'isolated and
+    resolved' keeps the resolved-claim attached to its subject."""
+    assert check_state_transitions("The SMSC issue was isolated and resolved.", _SUBJECTS)
+
+
+def test_doc_structural_gap_exists_wording_is_not_a_presence_claim() -> None:
+    """Hermes v3 P0: the exact CWSCX developer Run 2 sentence - 'gaps exist
+    for ... verification matrix' is a MISSING claim and must not be read as
+    'verification matrix exists'."""
+    matrix = {
+        "user_guide": {"required": True, "is_gap": True},
+        "admin_guide": {"required": True, "is_gap": True},
+        "developer_guide": {"required": True, "is_gap": True},
+        "verification_matrix": {"required": True, "is_gap": True},
+    }
+    out = _output(
+        summary="Required documentation gaps exist for user, admin, developer, and verification matrix guides.",
+        gaps=["Missing user_guide", "Missing admin_guide", "Missing developer_guide", "Missing verification_matrix"],
+    )
+    result = check_doc_gaps_structurally(matrix, out)
+    assert result["summary_contradictions"] == []
+    assert result["ok"] is True
+
+
+def test_doc_structural_true_presence_claim_still_caught() -> None:
+    """The fix must not weaken the real check: a genuine presence claim on a
+    matrix-gap artifact still fails."""
+    matrix = {"verification_matrix": {"required": True, "is_gap": True}}
+    out = _output(summary="The verification matrix exists and is current.", gaps=[])
+    result = check_doc_gaps_structurally(matrix, out)
+    assert result["summary_contradictions"]
