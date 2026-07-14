@@ -18,6 +18,28 @@ Newest entries first. Each entry: task, date, agent, then notes.
 
 ---
 
+## Golden-set v3 evaluation executed (2026-07-14, Claude Fable 5)
+
+Gate cleared: Gregory confirmed Hermes' event 487 + minimal next-action
+PATCH (independently verified via API and audit trail first). Ran
+`--runs 3` with prompt v3 / harness v3 against fresh frozen bundles
+(event-487 content confirmed present in the Health Fair bundle).
+
+- **24/24 schema-valid - the first 100% sample** (promotion criterion 1
+  met on this run size).
+- 19/24 heuristic pre-screen. **Zero** state-transition violations,
+  uncertainty-contract violations, CEO-widening or invented orgs - the
+  v1/v2 headline failure modes did not recur on this sample.
+- Remaining pre-screen failures are doc-matrix precision (one summary/
+  matrix contradiction, one omitted required gap, one false-missing) and
+  two Health Fair deadline omissions.
+- Artifacts: `golden_set_report_v3_2026-07-14T083807Z.md` + frozen
+  inputs JSON (timestamped, immutable; v2 evidence untouched).
+- **Awaiting Gregory's formal per-run scoring** using the new per-run
+  score lines and case stability tables.
+
+---
+
 ## Harness v3 + prompt v3: Hermes' P0/P1 brief implemented (2026-07-14, Claude Fable 5)
 
 Executed the continuation brief in `docs/eval/HERMES_EVALUATION_V2_2026-07-14.md`
