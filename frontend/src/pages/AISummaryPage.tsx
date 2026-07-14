@@ -85,7 +85,7 @@ function SummaryCard({
             {output.assumptions.length > 0 && (
               <div className="sm:col-span-2">
                 <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-text">
-                  Assumptions
+                  Uncertainties (no conclusions drawn)
                 </h3>
                 <ul className="list-inside list-disc text-sm text-muted-text">
                   {output.assumptions.map((a, i) => (

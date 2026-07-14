@@ -18,6 +18,88 @@ Newest entries first. Each entry: task, date, agent, then notes.
 
 ---
 
+## Harness v3 + prompt v3: Hermes' P0/P1 brief implemented (2026-07-14, Claude Fable 5)
+
+Executed the continuation brief in `docs/eval/HERMES_EVALUATION_V2_2026-07-14.md`
+in its priority order. The existing v2 report and frozen-input JSON are
+untouched, per the P0 preservation requirement.
+
+- **P0 evidence immutability**: eval artifacts now carry a UTC run
+  timestamp (`golden_set_report_v3_2026-07-14T...Z.md`); an existing
+  artifact path raises FileExistsError unless `--overwrite` is passed.
+  Tested (pinned-timestamp rerun refuses).
+- **P0 structural documentation checks**: the runner freezes each case's
+  documentation-matrix state ({artifact: required/is_gap}) alongside the
+  bundle and compares output `gaps` directly against it - false-missing
+  (draft/current called missing), omitted required gaps, duplicates, and
+  summary-prose contradictions ("admin guide is current" vs matrix gap).
+  Each of Hermes' three cited misses (CWSCX admin_guide contradiction,
+  Health Fair omitted developer_guide, draft exit_md called missing) is a
+  regression test.
+- **P0 state-transition checker corrected**: the broad v2 regexes are
+  gone; the check is now clause-scoped (split on ./;/,/and) - a clause
+  mentioning a protected subject (smsc/authentication) must not claim
+  resolution. All four Hermes fixtures pass: wrong-order variants fail,
+  correct "isolated" wording passes, and "resolving the styled email
+  default, an authentication-related SMSC failure has been isolated" (the
+  v2 false positive) now passes.
+- **P1 uncertainty contract**: prompt v3 (both audiences, version bumped
+  per protocol) replaces "X is not recorded; assuming Y" with "X is not
+  recorded; no conclusion drawn" and prohibits assuming-conclusions; a
+  new pre-screen check flags any 'assuming <hypothesis>' without an
+  explicit no-conclusion (the exact v2 offenders are test fixtures). The
+  `assumptions` API key is retained for compatibility (Hermes' option B);
+  the UI heading is now "Uncertainties (no conclusions drawn)".
+- **P1 per-run scoring + stability**: the report renders a human score
+  line per run and a case-level verdict table (every run Grounded>=4?
+  Safe>=4? all schema-valid? strict stable pass?). Malformed runs show a
+  hard-fail score line.
+- **P1 semantic criteria expanded**: CEO/Naadir widening variants
+  (incl. "business continuity depends on ... sign-off"), vague "Q3 2026"
+  replacing exact recorded deadlines, and invented "authorization delays"
+  are prohibited patterns with tests; correctly-scoped phrasings are
+  asserted to pass.
+- **Pre-screen framing corrected everywhere** (Hermes finding #7): the
+  report now labels it "heuristic, not a rubric pass" inline and in the
+  header.
+- **P2 (next live evaluation) deliberately NOT run**: Hermes gates it on
+  the IDC source record first receiving the factual 2026-07-14 Health
+  Fair update (ports 5174/8001/5456, USSD removed, trusted-device
+  posture, Entra/RBAC deferred, 40+11 tests) and being human-approved.
+  Once Hermes/Gregory post that update, run
+  `python -m app.ai.eval.run_golden_set --runs 3` - it will freeze new
+  bundles without touching v2 evidence.
+- 127/127 tests (10 new harness tests).
+
+---
+
+## Hermes advisory evaluation of prompt v2 (2026-07-14, Hermes)
+
+The complete repository-local assessment is now preserved at
+`docs/eval/HERMES_EVALUATION_V2_2026-07-14.md`. This is advisory input for
+Gregory, who remains the formal human scorer under `docs/eval/RUBRIC.md`.
+
+Key outcome from the 3 x 8 run:
+
+- schema-valid: **23/24 (95.8%)**;
+- automated claim pre-screen: **18/24 (75.0%)**, but with confirmed false
+  positives and false negatives;
+- Hermes-recommended strict stable passes: **1/8** (Pulse Awards developer);
+- manager cases: **0/4**;
+- indicative average: **3.38/5**;
+- model remains drafts-only with mandatory human review.
+
+The detailed note contains all case scores, exact failure evidence, harness
+analysis, promotion criteria and a coding-agent continuation brief. Highest
+priority follow-up: preserve immutable run artifacts; replace documentation
+gap regex/prose checking with structural matrix comparison; correct the VAS
+state-transition checker; remove speculative `assuming Y` semantics; add
+per-run rubric/stability results. Do not overwrite the existing v2 report or
+frozen-input JSON, and do not present this advisory assessment as Gregory's
+formal completed score.
+
+---
+
 ## T10 scored by Gregory; prompt v2 + hardened eval harness (2026-07-14, Claude Fable 5)
 
 **Gregory scored the golden set: 2/8 strict pass** (CWSCX-dev and Pulse-dev
