@@ -45,6 +45,7 @@ export interface Project {
   uses_ai: boolean;
   data_as_of: string | null;
   is_stale: boolean;
+  repo_last_push: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -245,6 +246,17 @@ export interface GitHubIntegrationStatus {
   source: "app" | "env";
   credential_set: boolean;
   api_base: string;
+  updated_at: string | null;
+  secret_key_configured: boolean;
+}
+
+export interface AIIntegrationStatus {
+  provider: "ai";
+  enabled: boolean;
+  backend: string;
+  model: string;
+  source: "app" | "env";
+  credential_set: boolean;
   updated_at: string | null;
   secret_key_configured: boolean;
 }

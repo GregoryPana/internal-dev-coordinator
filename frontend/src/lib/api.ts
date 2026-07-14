@@ -1,5 +1,6 @@
 import type { AIAudience, ArtifactType, AuditActionType, HumanReviewStatus } from "./vocab";
 import type {
+  AIIntegrationStatus,
   AIInteraction,
   AppConfig,
   AuditEventPage,
@@ -190,8 +191,22 @@ export async function getRepoSignals(
 
 export function getIntegrations(
   userEmail: string
-): Promise<{ github: GitHubIntegrationStatus }> {
+): Promise<{ github: GitHubIntegrationStatus; ai: AIIntegrationStatus }> {
   return request("/api/integrations", userEmail);
+}
+
+export function updateAIIntegration(
+  userEmail: string,
+  data: { enabled: boolean; model?: string | null; api_key?: string | null }
+): Promise<{ ai: AIIntegrationStatus }> {
+  return request("/api/integrations/ai", userEmail, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+export function testAIIntegration(userEmail: string): Promise<IntegrationTestResult> {
+  return request("/api/integrations/ai/test", userEmail, { method: "POST" });
 }
 
 export function updateGitHubIntegration(

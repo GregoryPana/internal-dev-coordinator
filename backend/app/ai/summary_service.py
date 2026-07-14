@@ -87,6 +87,9 @@ def _record(
 
 
 def generate_summary(db: Session, project: Project, audience: AIAudience) -> SummaryGenerationResult:
+    from app.integrations import service as integrations_service
+
+    ai_cfg = integrations_service.resolve_ai(db)
     bundle = build_source_bundle(db, project)
     bundle_hash = hashlib.sha256(bundle.text.encode("utf-8")).hexdigest()
 
@@ -98,8 +101,8 @@ def generate_summary(db: Session, project: Project, audience: AIAudience) -> Sum
             audience,
             bundle.source_ids,
             bundle_hash,
-            model_provider=settings.ai_provider,
-            model_name=settings.ai_model,
+            model_provider=ai_cfg.provider,
+            model_name=ai_cfg.model,
             validation_status=ValidationStatus.FAILED_FORBIDDEN_DATA,
             human_review_status=HumanReviewStatus.REJECTED,
             error_category=ErrorCategory.FORBIDDEN_DATA_DETECTED,
@@ -110,7 +113,7 @@ def generate_summary(db: Session, project: Project, audience: AIAudience) -> Sum
 
     start = time.monotonic()
     try:
-        provider = get_provider()
+        provider = get_provider(db)
         result = provider.complete(prompt)
     except ProviderUnavailableError:
         interaction = _record(
@@ -119,8 +122,8 @@ def generate_summary(db: Session, project: Project, audience: AIAudience) -> Sum
             audience,
             bundle.source_ids,
             bundle_hash,
-            model_provider=settings.ai_provider,
-            model_name=settings.ai_model,
+            model_provider=ai_cfg.provider,
+            model_name=ai_cfg.model,
             validation_status=ValidationStatus.FAILED_SCHEMA,
             human_review_status=HumanReviewStatus.REJECTED,
             error_category=ErrorCategory.PROVIDER_UNAVAILABLE,
@@ -137,7 +140,7 @@ def generate_summary(db: Session, project: Project, audience: AIAudience) -> Sum
             audience,
             bundle.source_ids,
             bundle_hash,
-            model_provider=settings.ai_provider,
+            model_provider=ai_cfg.provider,
             model_name=result.model_name,
             validation_status=ValidationStatus.FAILED_FORBIDDEN_DATA,
             human_review_status=HumanReviewStatus.REJECTED,
@@ -159,7 +162,7 @@ def generate_summary(db: Session, project: Project, audience: AIAudience) -> Sum
             audience,
             bundle.source_ids,
             bundle_hash,
-            model_provider=settings.ai_provider,
+            model_provider=ai_cfg.provider,
             model_name=result.model_name,
             validation_status=ValidationStatus.FAILED_SCHEMA,
             human_review_status=HumanReviewStatus.REJECTED,
@@ -178,7 +181,7 @@ def generate_summary(db: Session, project: Project, audience: AIAudience) -> Sum
         audience,
         bundle.source_ids,
         bundle_hash,
-        model_provider=settings.ai_provider,
+        model_provider=ai_cfg.provider,
         model_name=result.model_name,
         validation_status=ValidationStatus.PASSED,
         human_review_status=HumanReviewStatus.GENERATED,

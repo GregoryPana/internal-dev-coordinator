@@ -369,6 +369,11 @@ function ProjectSection({
                   </td>
                   <td className="px-4 py-3">
                     <FreshnessBadge dataAsOf={p.data_as_of} isStale={p.is_stale} />
+                    {p.repo_last_push && (
+                      <p className="mt-1 text-xs text-muted-text" title="Latest tracked GitHub push">
+                        pushed {new Date(p.repo_last_push).toLocaleDateString()}
+                      </p>
+                    )}
                   </td>
                 </tr>
               ))}

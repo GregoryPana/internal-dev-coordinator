@@ -68,7 +68,7 @@ def _create_project(client: TestClient, admin_email: str, **overrides) -> dict:
 
 def _enable_fake_provider(monkeypatch, **kwargs):
     monkeypatch.setattr(settings, "ai_provider", "fake")
-    monkeypatch.setattr("app.ai.summary_service.get_provider", lambda: FakeProvider(**kwargs))
+    monkeypatch.setattr("app.ai.summary_service.get_provider", lambda db=None: FakeProvider(**kwargs))
 
 
 def test_generate_summary_success(client: TestClient, db: Session, make_person, monkeypatch) -> None:
@@ -160,7 +160,7 @@ def test_forbidden_data_in_source_bundle_blocks_call(
     monkeypatch.setattr(settings, "ai_provider", "fake")
     called = {"n": 0}
 
-    def _tracking_provider():
+    def _tracking_provider(db=None):
         called["n"] += 1
         return FakeProvider()
 

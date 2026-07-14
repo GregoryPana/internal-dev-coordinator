@@ -234,7 +234,7 @@ def test_ai_tailoring_success_replaces_readme_overview(
     monkeypatch.setattr(settings, "ai_provider", "fake")
     monkeypatch.setattr(
         "app.ai.service.get_provider",
-        lambda: FakeProvider(text="This tailored overview mentions the CRM integration explicitly."),
+        lambda db=None: FakeProvider(text="This tailored overview mentions the CRM integration explicitly."),
     )
 
     resp = client.post(
@@ -264,7 +264,7 @@ def test_ai_tailoring_forbidden_data_in_intake_skips_call(
     monkeypatch.setattr(settings, "ai_provider", "fake")
     called = {"n": 0}
 
-    def _tracking_provider():
+    def _tracking_provider(db=None):
         called["n"] += 1
         return FakeProvider()
 
@@ -293,7 +293,7 @@ def test_ai_tailoring_provider_unavailable_falls_back_to_deterministic(
     project = _create_project(client, admin.email)
 
     monkeypatch.setattr(settings, "ai_provider", "fake")
-    monkeypatch.setattr("app.ai.service.get_provider", lambda: FakeProvider(raise_unavailable=True))
+    monkeypatch.setattr("app.ai.service.get_provider", lambda db=None: FakeProvider(raise_unavailable=True))
 
     resp = client.post(
         f"/api/projects/{project['id']}/starter-pack/generate",

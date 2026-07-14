@@ -43,6 +43,16 @@ def db() -> Session:
     session = Session(bind=connection, autoflush=False, expire_on_commit=False)
     session.begin_nested()
 
+    # The shared dev DB accumulates real committed rows (pilot projects,
+    # integration settings...). Tests must not see real integration config -
+    # a committed row would silently override env/monkeypatched settings
+    # (bitten three times now). Deleted inside the transaction, restored by
+    # the rollback below.
+    from app.integrations.models import IntegrationSetting
+
+    session.query(IntegrationSetting).delete()
+    session.flush()
+
     @event.listens_for(session, "after_transaction_end")
     def _restart_savepoint(sess, trans):
         if trans.nested and not trans._parent.nested:

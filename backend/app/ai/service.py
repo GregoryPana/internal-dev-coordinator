@@ -91,8 +91,17 @@ def _replace_readme_overview(files: list[GeneratedFile], overview: str) -> list[
     return updated
 
 
-def tailor_starter_pack(project: Project, intake: IntakeForm, files: list[GeneratedFile]) -> TailoringOutcome:
-    if settings.ai_provider == "disabled":
+def tailor_starter_pack(
+    project: Project, intake: IntakeForm, files: list[GeneratedFile], db=None
+) -> TailoringOutcome:
+    if db is not None:
+        from app.integrations import service as integrations_service
+
+        _cfg = integrations_service.resolve_ai(db)
+        provider_name, model_name = _cfg.provider, _cfg.model
+    else:
+        provider_name, model_name = settings.ai_provider, settings.ai_model
+    if provider_name == "disabled":
         return TailoringOutcome(files=files, interaction=None)
 
     bundle_hash = _bundle_hash(project, intake)
@@ -109,8 +118,8 @@ def tailor_starter_pack(project: Project, intake: IntakeForm, files: list[Genera
                 prompt_version=_PROMPT_VERSION,
                 source_ids_json=source_ids,
                 input_bundle_hash=bundle_hash,
-                model_provider=settings.ai_provider,
-                model_name=settings.ai_model,
+                model_provider=provider_name,
+                model_name=model_name,
                 validation_status=ValidationStatus.FAILED_FORBIDDEN_DATA,
                 human_review_status=HumanReviewStatus.REJECTED,
                 error_category=ErrorCategory.FORBIDDEN_DATA_DETECTED,
@@ -120,7 +129,7 @@ def tailor_starter_pack(project: Project, intake: IntakeForm, files: list[Genera
     prompt = _build_prompt(project, intake)
     start = time.monotonic()
     try:
-        provider = get_provider()
+        provider = get_provider(db)
         result = provider.complete(prompt)
     except ProviderUnavailableError:
         return TailoringOutcome(
@@ -131,8 +140,8 @@ def tailor_starter_pack(project: Project, intake: IntakeForm, files: list[Genera
                 prompt_version=_PROMPT_VERSION,
                 source_ids_json=source_ids,
                 input_bundle_hash=bundle_hash,
-                model_provider=settings.ai_provider,
-                model_name=settings.ai_model,
+                model_provider=provider_name,
+                model_name=model_name,
                 validation_status=ValidationStatus.FAILED_SCHEMA,
                 human_review_status=HumanReviewStatus.REJECTED,
                 error_category=ErrorCategory.PROVIDER_UNAVAILABLE,
@@ -150,7 +159,7 @@ def tailor_starter_pack(project: Project, intake: IntakeForm, files: list[Genera
                 prompt_version=_PROMPT_VERSION,
                 source_ids_json=source_ids,
                 input_bundle_hash=bundle_hash,
-                model_provider=settings.ai_provider,
+                model_provider=provider_name,
                 model_name=result.model_name,
                 validation_status=ValidationStatus.FAILED_SCHEMA,
                 human_review_status=HumanReviewStatus.REJECTED,
@@ -171,7 +180,7 @@ def tailor_starter_pack(project: Project, intake: IntakeForm, files: list[Genera
                 prompt_version=_PROMPT_VERSION,
                 source_ids_json=source_ids,
                 input_bundle_hash=bundle_hash,
-                model_provider=settings.ai_provider,
+                model_provider=provider_name,
                 model_name=result.model_name,
                 validation_status=ValidationStatus.FAILED_FORBIDDEN_DATA,
                 human_review_status=HumanReviewStatus.REJECTED,
@@ -191,7 +200,7 @@ def tailor_starter_pack(project: Project, intake: IntakeForm, files: list[Genera
             prompt_version=_PROMPT_VERSION,
             source_ids_json=source_ids,
             input_bundle_hash=bundle_hash,
-            model_provider=settings.ai_provider,
+            model_provider=provider_name,
             model_name=result.model_name,
             validation_status=ValidationStatus.PASSED,
             human_review_status=HumanReviewStatus.GENERATED,

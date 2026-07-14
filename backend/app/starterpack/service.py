@@ -358,7 +358,7 @@ def generate_pack(db: Session, project: Project, intake: IntakeForm) -> tuple[St
     (pack, ai_tailoring_attempted)."""
 
     deterministic_files = build_preview(project, intake)
-    outcome = tailor_starter_pack(project, intake, deterministic_files)
+    outcome = tailor_starter_pack(project, intake, deterministic_files, db=db)
 
     if outcome.interaction is not None:
         _record_ai_interaction(db, project, outcome.interaction)

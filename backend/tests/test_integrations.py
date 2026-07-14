@@ -222,3 +222,46 @@ def test_poll_all_projects_snapshots_and_survives_failures(
     assert bad_snap.success is False and "nope" in bad_snap.error
     assert repo_service.latest_snapshot(db, norepo.id) is None
     _ = admin  # silence unused warning
+
+
+def test_ai_settings_save_resolve_and_no_key_echo(
+    client: TestClient, db: Session, make_person, secret_key, no_integration_rows, monkeypatch
+) -> None:
+    admin = make_person(Role.ADMIN)
+    db.commit()
+
+    # Env fallback first.
+    monkeypatch.setattr(settings, "ai_provider", "openrouter")
+    monkeypatch.setattr(settings, "ai_model", "env-model")
+    monkeypatch.setattr(settings, "ai_api_key", "env-key")
+    cfg = integrations_service.resolve_ai(db)
+    assert (cfg.source, cfg.provider, cfg.model, cfg.api_key) == ("env", "openrouter", "env-model", "env-key")
+
+    # In-app row wins.
+    resp = client.put(
+        "/api/integrations/ai",
+        json={"enabled": True, "model": "nvidia/nemotron-nano-9b-v2:free", "api_key": "sk-or-verysecret"},
+        headers=_headers(admin.email),
+    )
+    assert resp.status_code == 200
+    assert "verysecret" not in resp.text
+    body = resp.json()["ai"]
+    assert body["enabled"] is True and body["source"] == "app"
+    assert body["model"] == "nvidia/nemotron-nano-9b-v2:free"
+    assert body["credential_set"] is True
+
+    cfg = integrations_service.resolve_ai(db)
+    assert (cfg.source, cfg.provider, cfg.api_key) == ("app", "openrouter", "sk-or-verysecret")
+
+    # Disabling in-app beats env enablement; provider resolves to Disabled.
+    client.put("/api/integrations/ai", json={"enabled": False}, headers=_headers(admin.email))
+    from app.ai.provider import get_provider as ai_get_provider
+
+    assert type(ai_get_provider(db)).__name__ == "DisabledProvider"
+    # model kept, key kept (api_key omitted = None)
+    cfg = integrations_service.resolve_ai(db)
+    assert cfg.model == "nvidia/nemotron-nano-9b-v2:free"
+    assert cfg.api_key == "sk-or-verysecret"
+
+    denied = client.get("/api/integrations", headers=_headers(make_person(Role.DEVELOPER_PROJECT_OWNER).email))
+    assert denied.status_code == 403

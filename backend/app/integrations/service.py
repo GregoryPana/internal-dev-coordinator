@@ -11,6 +11,7 @@ from app.integrations import crypto
 from app.integrations.models import IntegrationSetting
 
 GITHUB = "github"
+AI = "ai"  # one row for the AI provider (currently OpenRouter)
 
 
 @dataclass
@@ -79,6 +80,101 @@ def save_github(
     row.updated_by = updated_by
     db.flush()
     return row
+
+
+@dataclass
+class AIConfig:
+    enabled: bool
+    provider: str  # "openrouter" (or env-configured value) | "disabled"
+    model: str
+    api_key: str  # plaintext, resolved just-in-time; never persisted or logged
+    source: str  # "app" | "env"
+
+
+def resolve_ai(db: Session) -> AIConfig:
+    """In-app AI settings win when a row exists; env vars are the fallback."""
+    row = _get_row(db, AI)
+    if row is not None:
+        key = crypto.decrypt(row.encrypted_credential) if row.encrypted_credential else ""
+        config = row.config_json or {}
+        return AIConfig(
+            enabled=row.enabled,
+            provider=(config.get("provider") or "openrouter") if row.enabled else "disabled",
+            model=config.get("model") or "",
+            api_key=key,
+            source="app",
+        )
+    return AIConfig(
+        enabled=settings.ai_provider != "disabled",
+        provider=settings.ai_provider,
+        model=settings.ai_model,
+        api_key=settings.ai_api_key,
+        source="env",
+    )
+
+
+def ai_status(db: Session) -> dict:
+    row = _get_row(db, AI)
+    config = resolve_ai(db)
+    return {
+        "provider": "ai",
+        "enabled": config.enabled,
+        "backend": config.provider,
+        "model": config.model,
+        "source": config.source,
+        "credential_set": bool(config.api_key),
+        "updated_at": row.updated_at.isoformat() if row is not None else None,
+        "secret_key_configured": bool(settings.secret_key),
+    }
+
+
+def save_ai(
+    db: Session,
+    *,
+    enabled: bool,
+    model: str | None,
+    api_key: str | None,
+    updated_by: int,
+) -> IntegrationSetting:
+    """Same semantics as save_github: api_key=None keeps, ""=clears,
+    other=encrypt+store. model=None keeps the existing model."""
+    row = _get_row(db, AI)
+    if row is None:
+        row = IntegrationSetting(provider=AI, enabled=False, config_json={})
+        db.add(row)
+
+    if api_key is not None:
+        row.encrypted_credential = crypto.encrypt(api_key) if api_key else None
+    config = dict(row.config_json or {})
+    config["provider"] = "openrouter"
+    if model is not None:
+        config["model"] = model.strip()
+    row.config_json = config
+    row.enabled = enabled
+    row.updated_by = updated_by
+    db.flush()
+    return row
+
+
+def test_ai(db: Session) -> dict:
+    """Live check: one tiny completion through the resolved config."""
+    from app.ai.provider import ProviderUnavailableError, get_provider
+
+    config = resolve_ai(db)
+    if not config.enabled:
+        return {"ok": False, "detail": "AI provider is disabled."}
+    if not config.api_key:
+        return {"ok": False, "detail": "No API key stored - paste an OpenRouter key first."}
+    try:
+        result = get_provider(db).complete('Reply with exactly: {"ok": true}')
+    except (ProviderUnavailableError, NotImplementedError) as e:
+        return {"ok": False, "detail": str(e)}
+    return {
+        "ok": True,
+        "detail": f"Connected - model {result.model_name} answered "
+        f"({result.input_tokens}/{result.output_tokens} tokens).",
+        "model": result.model_name,
+    }
 
 
 def test_github(db: Session) -> dict:

@@ -24,13 +24,42 @@ def _get_project_or_404(db: Session, project_id: int):
     return project
 
 
+def _latest_pushes(db: Session, project_ids: list[int]) -> dict[int, "datetime"]:
+    """project_id -> pushed_at from the newest successful repo snapshot per
+    project. One query; display-only enrichment."""
+    if not project_ids:
+        return {}
+    from datetime import datetime
+
+    from sqlalchemy import select
+
+    from app.integrations.models import RepoSnapshot
+
+    rows = db.execute(
+        select(RepoSnapshot.project_id, RepoSnapshot.data_json)
+        .where(RepoSnapshot.project_id.in_(project_ids), RepoSnapshot.success.is_(True))
+        .order_by(RepoSnapshot.project_id, RepoSnapshot.id.desc())
+        .distinct(RepoSnapshot.project_id)
+    ).all()
+    result = {}
+    for project_id, data in rows:
+        pushed = (data or {}).get("pushed_at")
+        if pushed:
+            result[project_id] = datetime.fromisoformat(pushed.replace("Z", "+00:00"))
+    return result
+
+
 @router.get("", response_model=list[ProjectRead])
 def list_projects(
     db: Session = Depends(get_db),
     user: Person = Depends(authz.get_current_user),
 ) -> list[ProjectRead]:
     projects = registry_service.list_projects_for_user(db, user)
-    return [registry_service.to_read(p) for p in projects]
+    pushes = _latest_pushes(db, [p.id for p in projects])
+    return [
+        registry_service.to_read(p).model_copy(update={"repo_last_push": pushes.get(p.id)})
+        for p in projects
+    ]
 
 
 @router.post("", response_model=ProjectRead, status_code=status.HTTP_201_CREATED)

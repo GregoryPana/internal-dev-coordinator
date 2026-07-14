@@ -138,7 +138,7 @@ def test_agent_cannot_pass_human_review_gates(
             )
 
     monkeypatch.setattr(app_settings, "ai_provider", "fake")
-    monkeypatch.setattr("app.ai.summary_service.get_provider", lambda: FakeProvider())
+    monkeypatch.setattr("app.ai.summary_service.get_provider", lambda db=None: FakeProvider())
     summary = client.post(
         f"/api/projects/{project['id']}/ai/summary",
         json={"audience": "developer"},

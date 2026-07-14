@@ -110,15 +110,24 @@ class OpenRouterProvider:
         )
 
 
-def get_provider() -> AIProvider:
-    if settings.ai_provider == "disabled":
+def get_provider(db=None) -> AIProvider:
+    """Resolve the provider. With a Session, in-app integration settings
+    (encrypted, Settings page) take precedence; env vars are the fallback
+    (and the only source when db is omitted)."""
+    provider_name = settings.ai_provider
+    api_key = settings.ai_api_key
+    model = settings.ai_model
+    if db is not None:
+        from app.integrations import service as integrations_service
+
+        config = integrations_service.resolve_ai(db)
+        provider_name, api_key, model = config.provider, config.api_key, config.model
+
+    if provider_name == "disabled":
         return DisabledProvider()
-    if settings.ai_provider == "openrouter":
-        return OpenRouterProvider(
-            api_key=settings.ai_api_key,
-            model=settings.ai_model or _DEFAULT_OPENROUTER_MODEL,
-        )
+    if provider_name == "openrouter":
+        return OpenRouterProvider(api_key=api_key, model=model or _DEFAULT_OPENROUTER_MODEL)
     raise NotImplementedError(
-        f"AI provider '{settings.ai_provider}' is not implemented. Only 'disabled' and "
+        f"AI provider '{provider_name}' is not implemented. Only 'disabled' and "
         "'openrouter' are wired (add a client here for anything else)."
     )

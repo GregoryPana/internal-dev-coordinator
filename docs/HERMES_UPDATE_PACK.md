@@ -18,6 +18,35 @@ Newest entries first. Each entry: task, date, agent, then notes.
 
 ---
 
+## In-app AI provider + repo activity on the dashboard (2026-07-14, Claude Fable 5)
+
+Continuation of the guided-setup direction; the AI provider now follows the
+exact same in-app pattern as GitHub:
+
+- **AI settings card** on /settings: enable/disable, model field, encrypted
+  OpenRouter key (in and never out), guided steps (where to get a key, how
+  to pick a live free model), and a **Test connection** button that runs a
+  real one-line completion through the resolved config. Gregory's real key
+  is now stored in-app (encrypted) - `backend/.env` remains a fallback but
+  the app-managed row wins.
+- **The whole AI pipeline resolves config DB-first**: summary generation
+  and starter-pack tailoring both read the in-app row (falling back to
+  env), and AIInteraction rows record the resolved provider/model, not
+  whatever the env file happened to say.
+- **Repo activity surfaced on the dashboard**: each project row shows
+  "pushed <date>" from the newest successful tracked snapshot, next to the
+  human-evidence freshness badge - visibly separate, because repo pushes
+  deliberately do not feed data_as_of.
+- **Recurring test-isolation lesson fixed structurally**: the shared `db`
+  fixture now blanks `integration_settings` inside every test's
+  transaction, so committed real config can never silently leak into
+  tests again (this had bitten three times).
+- 117/117 tests; live-verified: in-app save → real OpenRouter completion
+  through the stored encrypted key ("Connected - model
+  nvidia/nemotron-nano-9b-v2:free answered").
+
+---
+
 ## Agent API access - Hermes can now read and write the register (2026-07-14, Claude Fable 5)
 
 Gregory: Hermes knows the projects and updates frequently, so it should be

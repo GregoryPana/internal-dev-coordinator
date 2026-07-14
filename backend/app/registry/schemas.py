@@ -76,5 +76,8 @@ class ProjectRead(ProjectBase):
     owner: ProjectOwnerRead | None
     data_as_of: datetime | None
     is_stale: bool
+    # Latest tracked GitHub push (from persisted repo snapshots); display
+    # only - deliberately not part of the freshness model.
+    repo_last_push: datetime | None = None
     created_at: datetime
     updated_at: datetime
